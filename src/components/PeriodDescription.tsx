@@ -9,11 +9,11 @@ interface PeriodDescriptionProps {
 
 export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: PeriodDescriptionProps) => {
   const description = useMemo(() => {
-    const yesterday = new Date('2025-06-07'); // Data base corrigida para 07/06/2025 (ontem)
+    const yesterday = new Date('2025-06-08'); // Data corrigida para 08/06/2025 (ontem)
     
     switch(selectedPeriod) {
       case 'ontem':
-        return 'Dados de 07/06/2025';
+        return 'Dados de 08/06/2025';
       case 'semana':
         const weekAgo = new Date(yesterday);
         weekAgo.setDate(weekAgo.getDate() - 7);

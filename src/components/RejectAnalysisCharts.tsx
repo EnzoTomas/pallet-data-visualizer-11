@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList } from 'recharts';
-import { AlertTriangle, User, Wrench } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList, LineChart, Line, Area, AreaChart } from 'recharts';
+import { AlertTriangle, User, Wrench, TrendingUp, Target, Zap } from 'lucide-react';
 
 interface RejectAnalysisChartsProps {
   data: any[];
@@ -49,10 +49,17 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
     .map(([name, value]) => ({ 
       name: name.replace('Erro de contorno: ', '').replace('Erro de ', ''), 
       fullName: name,
-      value: Number(value) 
+      value: Number(value),
+      percentage: 0
     }))
     .filter(item => item.value > 0)
     .sort((a, b) => b.value - a.value);
+
+  // Calcular percentuais
+  const totalRejects = rejectChartData.reduce((sum, item) => sum + item.value, 0);
+  rejectChartData.forEach(item => {
+    item.percentage = totalRejects > 0 ? (item.value / totalRejects) * 100 : 0;
+  });
 
   const responsibleChartData = Object.entries(responsibleData)
     .map(([name, value]) => ({ name, value: Number(value) }))
@@ -70,8 +77,18 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
     }
   };
 
+  const getRejectIcon = (name: string) => {
+    if (name.includes('Contorno') || name.includes('Altura') || name.includes('Direita') || name.includes('Esquerda') || name.includes('Frente') || name.includes('Traseira')) {
+      return <Target className="h-5 w-5" />;
+    }
+    if (name.includes('Etiqueta') || name.includes('leitura')) {
+      return <Zap className="h-5 w-5" />;
+    }
+    return <AlertTriangle className="h-5 w-5" />;
+  };
+
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value }: any) => {
-    if (percent < 0.05) return null; // Não mostrar labels muito pequenos
+    if (percent < 0.05) return null;
     
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -94,86 +111,136 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
     );
   };
 
-  const CustomBarLabel = (props: any) => {
-    const { x, y, width, height, value } = props;
-    return (
-      <text 
-        x={x + width / 2} 
-        y={y - 5} 
-        fill="hsl(var(--foreground))" 
-        textAnchor="middle" 
-        fontSize="12"
-        fontWeight="bold"
-      >
-        {value}
-      </text>
-    );
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Gráfico de Tipos de Rejeitos - Melhorado */}
-      <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-destructive/5 border-t-4 border-t-destructive scroll-animate">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2 text-destructive" />
-            Análise de Rejeitos por Tipo
-          </CardTitle>
+      {/* Dashboard de Rejeitos Redesenhado */}
+      <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-red-50/30 to-red-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
+        <CardHeader className="pb-6 relative">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-3 bg-red-500/10 rounded-xl">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <div>
+                <CardTitle className="text-xl font-bold text-gray-800">
+                  Análise de Rejeitos
+                </CardTitle>
+                <p className="text-sm text-gray-600 mt-1">Distribuição por categoria</p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-red-600">{totalRejects}</div>
+              <div className="text-xs text-gray-500">Total de rejeitos</div>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart 
-              data={rejectChartData} 
-              margin={{ top: 40, right: 30, left: 20, bottom: 100 }}
-              layout="horizontal"
-            >
-              <defs>
-                {colors.map((color, index) => (
-                  <linearGradient key={index} id={`colorReject${index}`} x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="5%" stopColor={color} stopOpacity={0.9}/>
-                    <stop offset="95%" stopColor={color} stopOpacity={0.7}/>
-                  </linearGradient>
+        <CardContent className="space-y-4">
+          {rejectChartData.length > 0 ? (
+            <>
+              {/* Top 3 Rejeitos em Cards */}
+              <div className="grid grid-cols-1 gap-3 mb-6">
+                {rejectChartData.slice(0, 3).map((item, index) => (
+                  <div 
+                    key={item.name}
+                    className="flex items-center justify-between p-4 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="p-2 rounded-lg"
+                        style={{ 
+                          backgroundColor: `${colors[index]}20`,
+                          color: colors[index]
+                        }}
+                      >
+                        {getRejectIcon(item.fullName)}
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-800 text-sm">{item.name}</div>
+                        <div className="text-xs text-gray-500">{item.fullName}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold" style={{ color: colors[index] }}>
+                        {item.value}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {item.percentage.toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-              <XAxis 
-                type="number"
-                tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-              />
-              <YAxis 
-                type="category"
-                dataKey="name" 
-                tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
-                width={120}
-              />
-              <Tooltip 
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--card))',
-                  border: 'none',
-                  borderRadius: '12px',
-                  boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                }}
-                formatter={(value: number, name: string, props: any) => [value, props.payload.fullName]}
-                labelFormatter={(label: string) => `Tipo: ${label}`}
-              />
-              <Bar 
-                dataKey="value" 
-                fill="url(#colorReject0)"
-                radius={[0, 4, 4, 0]}
-                animationDuration={1500}
-              >
-                <LabelList 
-                  dataKey="value" 
-                  position="right" 
-                  style={{ fill: 'hsl(var(--foreground))', fontWeight: 'bold', fontSize: '12px' }}
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+              </div>
+
+              {/* Gráfico de Barras Horizontal Melhorado */}
+              <div className="bg-white rounded-xl p-4 shadow-inner">
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart 
+                    data={rejectChartData} 
+                    layout="horizontal"
+                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+                  >
+                    <defs>
+                      {colors.map((color, index) => (
+                        <linearGradient key={index} id={`rejectGradient${index}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={color} stopOpacity={0.8}/>
+                          <stop offset="100%" stopColor={color} stopOpacity={0.4}/>
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                    <XAxis 
+                      type="number"
+                      tick={{ fontSize: 11, fill: '#64748b' }}
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      type="category"
+                      dataKey="name" 
+                      tick={{ fontSize: 10, fill: '#64748b' }}
+                      width={100}
+                      axisLine={false}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: 'none',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
+                      }}
+                      formatter={(value: number, name: string, props: any) => [
+                        `${value} rejeitos (${props.payload.percentage.toFixed(1)}%)`, 
+                        props.payload.fullName
+                      ]}
+                    />
+                    <Bar 
+                      dataKey="value" 
+                      radius={[0, 6, 6, 0]}
+                      animationDuration={1500}
+                    >
+                      {rejectChartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`url(#rejectGradient${index % colors.length})`} />
+                      ))}
+                      <LabelList 
+                        dataKey="value" 
+                        position="right" 
+                        style={{ fill: '#374151', fontWeight: 'bold', fontSize: '11px' }}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <p>Nenhum rejeito encontrado no período selecionado</p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Gráfico de Responsáveis - 3D e com números visíveis */}
+      {/* Gráfico de Responsáveis Mantido Similar */}
       <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-secondary/5 border-t-4 border-t-secondary scroll-animate">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
@@ -193,19 +260,11 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                       <stop offset="100%" stopColor={color} stopOpacity={0.7}/>
                     </linearGradient>
                   ))}
-                  {/* Gradientes de sombra para efeito 3D */}
-                  {responsibleColors.map((color, index) => (
-                    <linearGradient key={`shadow${index}`} id={`shadow${index}`} x1="0" y1="0" x2="1" y2="1">
-                      <stop offset="0%" stopColor="#000000" stopOpacity={0.3}/>
-                      <stop offset="100%" stopColor="#000000" stopOpacity={0.1}/>
-                    </linearGradient>
-                  ))}
                 </defs>
                 
-                {/* Sombra para efeito 3D */}
                 <Pie
                   data={responsibleChartData}
-                  cx="50%"
+                  cx="52%"
                   cy="52%"
                   outerRadius={102}
                   fill="#000000"
@@ -215,7 +274,6 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                   endAngle={450}
                 />
                 
-                {/* Gráfico principal */}
                 <Pie
                   data={responsibleChartData}
                   cx="50%"

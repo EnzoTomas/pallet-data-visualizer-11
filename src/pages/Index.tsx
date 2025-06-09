@@ -1,11 +1,10 @@
-
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { CheckCircle, X, Calendar, TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { CheckCircle, X, Calendar, TrendingUp, TrendingDown, Activity, Target, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 import { CountUp } from "@/components/CountUp";
@@ -158,8 +157,8 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
-  const [startDate, setStartDate] = useState('2025-06-06');
-  const [endDate, setEndDate] = useState('2025-06-07');
+  const [startDate, setStartDate] = useState('2025-06-07');
+  const [endDate, setEndDate] = useState('2025-06-08');
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
 
@@ -217,8 +216,8 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    // Usar 07/06/2025 (ontem) como base para todos os cálculos
-    const yesterday = new Date('2025-06-07'); 
+    // Usar 08/06/2025 (ontem) como base para todos os cálculos
+    const yesterday = new Date('2025-06-08'); 
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');
@@ -226,7 +225,7 @@ const Index = () => {
       
       switch(selectedPeriod) {
         case 'ontem':
-          return item.date === '07/06/2025';
+          return item.date === '08/06/2025';
         case 'semana':
           const weekAgo = new Date(yesterday);
           weekAgo.setDate(weekAgo.getDate() - 7);
@@ -306,6 +305,16 @@ const Index = () => {
     };
   }, [filteredData]);
 
+  // Preparar dados para o gráfico de tendência melhorado
+  const trendData = useMemo(() => {
+    return filteredData.slice(-30).map(item => ({
+      ...item,
+      meta: 75, // Meta de eficiência
+      zona_critica: 50, // Zona crítica
+      diferenca_meta: item.eficiencia - 75
+    }));
+  }, [filteredData]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -323,7 +332,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Period Selector - Improved mobile layout */}
+        {/* Period Selector */}
         <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-card/20 animate-fade-in">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
             <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full lg:w-auto">
@@ -370,7 +379,6 @@ const Index = () => {
             )}
           </div>
           
-          {/* Period Description */}
           <div className="mt-4">
             <PeriodDescription 
               selectedPeriod={selectedPeriod} 
@@ -382,7 +390,7 @@ const Index = () => {
 
         {/* Main KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-secondary/50 to-secondary/30 border-l-4 border-l-secondary animate-fade-in scroll-animate">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-secondary/50 to-secondary/30 border-l-4 border-l-secondary animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-secondary-foreground mb-2 font-medium">Aderência Total</div>
@@ -404,7 +412,7 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-primary/20 to-primary/10 border-l-4 border-l-primary animate-fade-in scroll-animate">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-primary/20 to-primary/10 border-l-4 border-l-primary animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-primary mb-2 font-medium">Inseridos Total</div>
@@ -422,7 +430,7 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-destructive/20 to-destructive/10 border-l-4 border-l-destructive animate-fade-in scroll-animate">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-destructive/20 to-destructive/10 border-l-4 border-l-destructive animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-destructive mb-2 font-medium">Rejeitados Total</div>
@@ -466,60 +474,135 @@ const Index = () => {
         {/* Reject Analysis Charts */}
         <RejectAnalysisCharts data={filteredData} />
 
-        {/* Charts Section */}
+        {/* Charts Section Melhorado */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-primary/5 border-t-4 border-t-primary scroll-animate">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2 text-primary" />
-                Tendência de Eficiência
-              </CardTitle>
+          {/* Gráfico de Tendência Redesenhado */}
+          <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-green-500 to-blue-600"></div>
+            <CardHeader className="pb-6 relative">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="p-3 bg-blue-500/10 rounded-xl">
+                    <TrendingUp className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl font-bold text-gray-800">
+                      Análise de Performance
+                    </CardTitle>
+                    <p className="text-sm text-gray-600 mt-1">Eficiência vs Meta (75%)</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {aggregatedData.eficiencia.toFixed(1)}%
+                  </div>
+                  <div className="text-xs text-gray-500">Atual</div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <LineChart data={filteredData.slice(-30)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+              {/* Indicadores de Performance */}
+              <div className="grid grid-cols-3 gap-4 mb-6">
+                <div className="text-center p-3 bg-green-50 rounded-lg">
+                  <Target className="h-5 w-5 mx-auto text-green-600 mb-1" />
+                  <div className="text-lg font-bold text-green-600">75%</div>
+                  <div className="text-xs text-gray-600">Meta</div>
+                </div>
+                <div className="text-center p-3 bg-yellow-50 rounded-lg">
+                  <Zap className="h-5 w-5 mx-auto text-yellow-600 mb-1" />
+                  <div className="text-lg font-bold text-yellow-600">50%</div>
+                  <div className="text-xs text-gray-600">Crítico</div>
+                </div>
+                <div className="text-center p-3 bg-blue-50 rounded-lg">
+                  <Activity className="h-5 w-5 mx-auto text-blue-600 mb-1" />
+                  <div className={`text-lg font-bold ${aggregatedData.eficiencia >= 75 ? 'text-green-600' : aggregatedData.eficiencia >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
+                    {aggregatedData.eficiencia >= 75 ? 'Excelente' : aggregatedData.eficiencia >= 50 ? 'Atenção' : 'Crítico'}
+                  </div>
+                  <div className="text-xs text-gray-600">Status</div>
+                </div>
+              </div>
+
+              <ResponsiveContainer width="100%" height={320}>
+                <AreaChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <defs>
                     <linearGradient id="colorEficiencia" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorMeta" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                    </linearGradient>
+                    <linearGradient id="colorCritica" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+                  
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
+                    tick={{ fontSize: 11, fill: '#6b7280' }}
                     tickFormatter={(value) => {
                       const [day, month] = value.split('/');
                       return `${day}/${month}`;
                     }}
                   />
-                  <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
+                  <YAxis 
+                    tick={{ fontSize: 11, fill: '#6b7280' }}
+                    domain={[0, 100]}
+                  />
+                  
+                  {/* Área da zona crítica */}
+                  <Area
+                    type="monotone"
+                    dataKey={() => 50}
+                    stroke="none"
+                    fill="url(#colorCritica)"
+                    fillOpacity={0.3}
+                  />
+                  
+                  {/* Linha da meta */}
+                  <Line
+                    type="monotone"
+                    dataKey="meta"
+                    stroke="#10b981"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={false}
+                  />
+                  
+                  {/* Área principal da eficiência */}
+                  <Area
+                    type="monotone"
+                    dataKey="eficiencia"
+                    stroke="#3b82f6"
+                    strokeWidth={3}
+                    fill="url(#colorEficiencia)"
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: '#ffffff' }}
+                  />
+                  
                   <Tooltip 
                     contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
+                      backgroundColor: 'white',
                       border: 'none',
                       borderRadius: '12px',
-                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                      animation: 'fade-in 0.3s ease'
+                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
                     }}
-                    formatter={(value, name) => [`${value}%`, 'Eficiência']}
+                    formatter={(value: number, name: string) => {
+                      if (name === 'eficiencia') return [`${value.toFixed(1)}%`, 'Eficiência'];
+                      if (name === 'meta') return [`${value}%`, 'Meta'];
+                      return [value, name];
+                    }}
                     labelFormatter={(label) => `Data: ${label}`}
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="eficiencia" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={4}
-                    fill="url(#colorEficiencia)"
-                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 6 }}
-                    activeDot={{ r: 8, stroke: 'hsl(var(--primary))', strokeWidth: 2, fill: 'hsl(var(--card))' }}
-                    animationDuration={1500}
-                  />
-                </LineChart>
+                </AreaChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
+          {/* Volume de Produção Mantido Similar */}
           <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-accent/5 border-t-4 border-t-accent scroll-animate">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
@@ -535,54 +618,4 @@ const Index = () => {
                       <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.9}/>
                       <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.7}/>
                     </linearGradient>
-                    <linearGradient id="colorRejeitos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.7}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-                  <XAxis 
-                    dataKey="date" 
-                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
-                    tickFormatter={(value) => {
-                      const [day, month] = value.split('/');
-                      return `${day}/${month}`;
-                    }}
-                  />
-                  <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'hsl(var(--card))',
-                      border: 'none',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-                      animation: 'fade-in 0.3s ease'
-                    }}
-                    formatter={(value, name) => [value, name === 'totalInseridos' ? 'Inseridos' : 'Rejeitos']}
-                    labelFormatter={(label) => `Data: ${label}`}
-                  />
-                  <Bar 
-                    dataKey="totalInseridos" 
-                    fill="url(#colorInseridos)" 
-                    name="Inseridos" 
-                    radius={[4, 4, 0, 0]}
-                    animationDuration={1500}
-                  />
-                  <Bar 
-                    dataKey="totalRejeitos" 
-                    fill="url(#colorRejeitos)" 
-                    name="Rejeitos" 
-                    radius={[4, 4, 0, 0]}
-                    animationDuration={1500}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Index;
+                    <linearGradient
