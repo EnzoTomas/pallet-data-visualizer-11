@@ -9,21 +9,21 @@ interface PeriodDescriptionProps {
 
 export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: PeriodDescriptionProps) => {
   const description = useMemo(() => {
-    const today = new Date('2025-06-08'); // Data base corrigida para 08/06/2025
+    const yesterday = new Date('2025-06-07'); // Data base corrigida para 07/06/2025 (ontem)
     
     switch(selectedPeriod) {
       case 'ontem':
-        return 'Dados de 08/06/2025';
+        return 'Dados de 07/06/2025';
       case 'semana':
-        const weekAgo = new Date(today);
+        const weekAgo = new Date(yesterday);
         weekAgo.setDate(weekAgo.getDate() - 7);
-        return `Últimos 7 dias (${weekAgo.toLocaleDateString('pt-BR')} - ${today.toLocaleDateString('pt-BR')})`;
+        return `Últimos 7 dias (${weekAgo.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
       case 'mensal':
-        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-        return `Mês atual (${monthStart.toLocaleDateString('pt-BR')} - ${today.toLocaleDateString('pt-BR')})`;
+        const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
+        return `Mês atual (${monthStart.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
       case 'anual':
-        const yearStart = new Date(today.getFullYear(), 0, 1);
-        return `Ano atual (${yearStart.toLocaleDateString('pt-BR')} - ${today.toLocaleDateString('pt-BR')})`;
+        const yearStart = new Date(yesterday.getFullYear(), 0, 1);
+        return `Ano atual (${yearStart.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
       case 'personalizado':
         const start = new Date(startDate);
         const end = new Date(endDate);

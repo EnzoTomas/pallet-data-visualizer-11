@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -157,8 +158,8 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
-  const [startDate, setStartDate] = useState('2025-06-07');
-  const [endDate, setEndDate] = useState('2025-06-08');
+  const [startDate, setStartDate] = useState('2025-06-06');
+  const [endDate, setEndDate] = useState('2025-06-07');
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
 
@@ -216,8 +217,8 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    // Usar 08/06/2025 como base para todos os cálculos
-    const today = new Date('2025-06-08'); 
+    // Usar 07/06/2025 (ontem) como base para todos os cálculos
+    const yesterday = new Date('2025-06-07'); 
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');
@@ -225,17 +226,17 @@ const Index = () => {
       
       switch(selectedPeriod) {
         case 'ontem':
-          return item.date === '08/06/2025';
+          return item.date === '07/06/2025';
         case 'semana':
-          const weekAgo = new Date(today);
+          const weekAgo = new Date(yesterday);
           weekAgo.setDate(weekAgo.getDate() - 7);
-          return itemDate >= weekAgo && itemDate <= today;
+          return itemDate >= weekAgo && itemDate <= yesterday;
         case 'mensal':
-          const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-          return itemDate >= monthStart && itemDate <= today;
+          const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
+          return itemDate >= monthStart && itemDate <= yesterday;
         case 'anual':
-          const yearStart = new Date(today.getFullYear(), 0, 1);
-          return itemDate >= yearStart && itemDate <= today;
+          const yearStart = new Date(yesterday.getFullYear(), 0, 1);
+          return itemDate >= yearStart && itemDate <= yesterday;
         case 'personalizado':
           const start = new Date(startDate);
           const end = new Date(endDate);
