@@ -1,9 +1,11 @@
 
 import { useState, useMemo } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle, Calendar, Activity } from 'lucide-react';
+import { CheckCircle, X, Calendar, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
@@ -75,8 +77,66 @@ const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,0
 07/06/2025	114	77	59,69%	30	0	2	1	37	15	8	2	30	2	58	56	40	58,33%	18	11	62,07%	40	26	60,61%
 08/06/2025	9	5	64,29%	4	0	0	0	1	0	0	0	4	0	1	0	0		0	0		9	5	64,29%`;
 
+const CircularProgress = ({ percentage, label, inseridos, rejeitos }: { 
+  percentage: number; 
+  label: string; 
+  inseridos: number; 
+  rejeitos: number; 
+}) => {
+  const radius = 45;
+  const strokeWidth = 8;
+  const normalizedRadius = radius - strokeWidth * 2;
+  const circumference = normalizedRadius * 2 * Math.PI;
+  const strokeDasharray = `${circumference} ${circumference}`;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px]">
+      <div className="text-sm text-muted-foreground mb-2">{label}</div>
+      <div className="relative">
+        <svg
+          height={radius * 2}
+          width={radius * 2}
+          className="transform -rotate-90"
+        >
+          <circle
+            stroke="#e5e7eb"
+            fill="transparent"
+            strokeWidth={strokeWidth}
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+          />
+          <circle
+            stroke="#000000"
+            fill="transparent"
+            strokeWidth={strokeWidth}
+            strokeDasharray={strokeDasharray}
+            style={{ strokeDashoffset }}
+            r={normalizedRadius}
+            cx={radius}
+            cy={radius}
+            strokeLinecap="round"
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div className="text-2xl font-bold">{percentage.toFixed(2)}%</div>
+        </div>
+      </div>
+      <div className="mt-3 text-center space-y-1">
+        <div className="text-sm">
+          <span className="text-muted-foreground">Inseridos:</span> <span className="font-medium">{inseridos}</span>
+        </div>
+        <div className="text-sm">
+          <span className="text-muted-foreground">Rejeitos:</span> <span className="font-medium">{rejeitos}</span>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 const Index = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('30');
+  const [selectedPeriod, setSelectedPeriod] = useState('Ontem');
 
   const processedData = useMemo(() => {
     return rawData.trim().split('\n').map(line => {
@@ -86,167 +146,140 @@ const Index = () => {
         totalInseridos: parseInt(values[1]) || 0,
         totalRejeitos: parseInt(values[2]) || 0,
         eficiencia: parseFloat(values[3]?.replace('%', '').replace(',', '.')) || 0,
-        erroLeituraEtiqueta: parseInt(values[4]) || 0,
-        madeiraPes: parseInt(values[5]) || 0,
-        areaLivre: parseInt(values[6]) || 0,
-        erroAltura: parseInt(values[7]) || 0,
-        erroDireita: parseInt(values[8]) || 0,
-        erroEsquerda: parseInt(values[9]) || 0,
-        erroFrente: parseInt(values[10]) || 0,
-        erroTraseira: parseInt(values[11]) || 0,
-        falhaSensor: parseInt(values[12]) || 0,
-        pallet: parseInt(values[13]) || 0,
-        rn: parseInt(values[14]) || 0,
+        inseridos1T: parseInt(values[15]) || 0,
+        rejeitos1T: parseInt(values[16]) || 0,
+        aderencia1T: parseFloat(values[17]?.replace('%', '').replace(',', '.')) || 0,
+        inseridos2T: parseInt(values[18]) || 0,
+        rejeitos2T: parseInt(values[19]) || 0,
+        aderencia2T: parseFloat(values[20]?.replace('%', '').replace(',', '.')) || 0,
+        inseridos3T: parseInt(values[21]) || 0,
+        rejeitos3T: parseInt(values[22]) || 0,
+        aderencia3T: parseFloat(values[23]?.replace('%', '').replace(',', '.')) || 0,
         total: function() { return this.totalInseridos + this.totalRejeitos; }
       };
     }).filter(item => item.total() > 0);
   }, []);
 
-  const filteredData = useMemo(() => {
-    const days = parseInt(selectedPeriod);
-    return processedData.slice(-days);
-  }, [processedData, selectedPeriod]);
-
-  const kpis = useMemo(() => {
-    const totalInseridos = filteredData.reduce((sum, item) => sum + item.totalInseridos, 0);
-    const totalRejeitos = filteredData.reduce((sum, item) => sum + item.totalRejeitos, 0);
-    const total = totalInseridos + totalRejeitos;
-    const eficienciaMedia = total > 0 ? (totalInseridos / total) * 100 : 0;
-    
-    const eficienciaAnterior = processedData.slice(-60, -30).reduce((sum, item, _, arr) => {
-      const totalAnterior = item.totalInseridos + item.totalRejeitos;
-      return sum + (totalAnterior > 0 ? (item.totalInseridos / totalAnterior) * 100 : 0);
-    }, 0) / Math.max(processedData.slice(-60, -30).filter(item => item.total() > 0).length, 1);
-
-    const tendenciaEficiencia = eficienciaMedia - eficienciaAnterior;
-
-    return {
-      totalInseridos,
-      totalRejeitos,
-      total,
-      eficienciaMedia,
-      tendenciaEficiencia,
-      diasOperacao: filteredData.filter(item => item.total() > 0).length
-    };
-  }, [filteredData, processedData]);
-
-  const errorAnalysis = useMemo(() => {
-    const errors = {
-      'Erro de Leitura': filteredData.reduce((sum, item) => sum + item.erroLeituraEtiqueta, 0),
-      'Erro Frente': filteredData.reduce((sum, item) => sum + item.erroFrente, 0),
-      'Erro Esquerda': filteredData.reduce((sum, item) => sum + item.erroEsquerda, 0),
-      'Erro Direita': filteredData.reduce((sum, item) => sum + item.erroDireita, 0),
-      'Erro Traseira': filteredData.reduce((sum, item) => sum + item.erroTraseira, 0),
-      'Falha Sensor': filteredData.reduce((sum, item) => sum + item.falhaSensor, 0),
-      'Madeira Pés': filteredData.reduce((sum, item) => sum + item.madeiraPes, 0),
-      'Área Livre': filteredData.reduce((sum, item) => sum + item.areaLivre, 0),
-    };
-
-    return Object.entries(errors)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 6);
-  }, [filteredData]);
-
-  const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#f97316'];
+  const latestData = processedData[processedData.length - 1] || {
+    totalInseridos: 0,
+    totalRejeitos: 0,
+    eficiencia: 0,
+    inseridos1T: 0,
+    rejeitos1T: 0,
+    aderencia1T: 0,
+    inseridos2T: 0,
+    rejeitos2T: 0,
+    aderencia2T: 0,
+    inseridos3T: 0,
+    rejeitos3T: 0,
+    aderencia3T: 0
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+    <div className="min-h-screen bg-slate-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-slate-800">Dashboard de Produção</h1>
-          <p className="text-slate-600">Monitoramento em tempo real da eficiência e qualidade</p>
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold text-slate-800">Status Paletização</h1>
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Upload className="h-4 w-4 mr-2" />
+            Importar CSV
+          </Button>
         </div>
 
         {/* Period Selector */}
-        <div className="flex justify-center">
+        <div className="flex items-center gap-4">
           <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-auto">
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="7">7 dias</TabsTrigger>
-              <TabsTrigger value="15">15 dias</TabsTrigger>
-              <TabsTrigger value="30">30 dias</TabsTrigger>
-              <TabsTrigger value="60">60 dias</TabsTrigger>
+              <TabsTrigger value="Ontem">Ontem</TabsTrigger>
+              <TabsTrigger value="Semana">Semana</TabsTrigger>
+              <TabsTrigger value="Mensal">Mensal</TabsTrigger>
+              <TabsTrigger value="Anual">Anual</TabsTrigger>
             </TabsList>
           </Tabs>
+          
+          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <span>De</span>
+              <input type="date" defaultValue="2025-06-08" className="border rounded px-2 py-1" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Até</span>
+              <input type="date" defaultValue="2025-06-08" className="border rounded px-2 py-1" />
+            </div>
+          </div>
         </div>
 
-        {/* KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Inseridos</CardTitle>
-              <CheckCircle className="h-4 w-4 text-blue-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{kpis.totalInseridos.toLocaleString()}</div>
-              <p className="text-xs text-slate-600">
-                {kpis.diasOperacao} dias de operação
-              </p>
-            </CardContent>
+        {/* Main KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-2">Aderência Total</div>
+                <div className="text-4xl font-bold text-yellow-600">{latestData.eficiencia.toFixed(2)}%</div>
+              </div>
+              <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <CheckCircle className="h-6 w-6 text-yellow-600" />
+              </div>
+            </div>
           </Card>
 
-          <Card className="border-l-4 border-l-red-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Rejeitos</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-red-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{kpis.totalRejeitos.toLocaleString()}</div>
-              <p className="text-xs text-slate-600">
-                {kpis.total > 0 ? ((kpis.totalRejeitos / kpis.total) * 100).toFixed(1) : 0}% do total
-              </p>
-            </CardContent>
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-2">Inseridos Total</div>
+                <div className="text-4xl font-bold text-green-600">{latestData.totalInseridos}</div>
+              </div>
+              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                <Calendar className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
           </Card>
 
-          <Card className="border-l-4 border-l-green-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Eficiência Média</CardTitle>
-              <Activity className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{kpis.eficienciaMedia.toFixed(1)}%</div>
-              <p className="text-xs flex items-center text-slate-600">
-                {kpis.tendenciaEficiencia > 0 ? (
-                  <>
-                    <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
-                    +{kpis.tendenciaEficiencia.toFixed(1)}%
-                  </>
-                ) : (
-                  <>
-                    <TrendingDown className="h-3 w-3 text-red-500 mr-1" />
-                    {kpis.tendenciaEficiencia.toFixed(1)}%
-                  </>
-                )}
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-purple-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Volume Total</CardTitle>
-              <Calendar className="h-4 w-4 text-purple-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{kpis.total.toLocaleString()}</div>
-              <p className="text-xs text-slate-600">
-                Média diária: {kpis.diasOperacao > 0 ? Math.round(kpis.total / kpis.diasOperacao) : 0}
-              </p>
-            </CardContent>
+          <Card className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-sm text-muted-foreground mb-2">Rejeitados Total</div>
+                <div className="text-4xl font-bold text-red-600">{latestData.totalRejeitos}</div>
+              </div>
+              <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
+                <X className="h-6 w-6 text-red-600" />
+              </div>
+            </div>
           </Card>
         </div>
 
-        {/* Charts */}
+        {/* Shift Performance Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <CircularProgress
+            percentage={latestData.aderencia1T}
+            label="Turno 1"
+            inseridos={latestData.inseridos1T}
+            rejeitos={latestData.rejeitos1T}
+          />
+          <CircularProgress
+            percentage={latestData.aderencia2T}
+            label="Turno 2"
+            inseridos={latestData.inseridos2T}
+            rejeitos={latestData.rejeitos2T}
+          />
+          <CircularProgress
+            percentage={latestData.aderencia3T}
+            label="Turno 3"
+            inseridos={latestData.inseridos3T}
+            rejeitos={latestData.rejeitos3T}
+          />
+        </div>
+
+        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Efficiency Trend */}
           <Card>
             <CardHeader>
               <CardTitle>Tendência de Eficiência</CardTitle>
-              <CardDescription>Evolução da eficiência ao longo do tempo</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={filteredData}>
+                <LineChart data={processedData.slice(-30)}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="date" 
@@ -266,51 +299,19 @@ const Index = () => {
                     dataKey="eficiencia" 
                     stroke="#3b82f6" 
                     strokeWidth={3}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          {/* Error Analysis */}
           <Card>
             <CardHeader>
-              <CardTitle>Análise de Erros</CardTitle>
-              <CardDescription>Principais tipos de erros no período</CardDescription>
+              <CardTitle>Volume de Produção</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={errorAnalysis}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {errorAnalysis.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => [value, 'Ocorrências']} />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Volume Chart */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Volume de Produção</CardTitle>
-              <CardDescription>Inseridos vs Rejeitos por dia</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={filteredData}>
+                <BarChart data={processedData.slice(-30)}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="date" 
@@ -331,11 +332,6 @@ const Index = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-slate-500 py-4">
-          Dashboard atualizado automaticamente • Dados em tempo real
         </div>
       </div>
     </div>
