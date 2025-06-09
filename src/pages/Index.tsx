@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { CheckCircle, X, Calendar, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from "@/hooks/use-toast";
 
 const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
@@ -137,9 +137,13 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('Ontem');
+  const [startDate, setStartDate] = useState('2025-06-08');
+  const [endDate, setEndDate] = useState('2025-06-08');
+  const [csvData, setCsvData] = useState(rawData);
+  const { toast } = useToast();
 
   const processedData = useMemo(() => {
-    return rawData.trim().split('\n').map(line => {
+    return csvData.trim().split('\n').map(line => {
       const values = line.split('\t');
       return {
         date: values[0],
@@ -158,21 +162,120 @@ const Index = () => {
         total: function() { return this.totalInseridos + this.totalRejeitos; }
       };
     }).filter(item => item.total() > 0);
-  }, []);
+  }, [csvData]);
 
-  const latestData = processedData[processedData.length - 1] || {
-    totalInseridos: 0,
-    totalRejeitos: 0,
-    eficiencia: 0,
-    inseridos1T: 0,
-    rejeitos1T: 0,
-    aderencia1T: 0,
-    inseridos2T: 0,
-    rejeitos2T: 0,
-    aderencia2T: 0,
-    inseridos3T: 0,
-    rejeitos3T: 0,
-    aderencia3T: 0
+  const filteredData = useMemo(() => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    return processedData.filter(item => {
+      const itemDate = new Date(item.date.split('/').reverse().join('-'));
+      
+      switch(selectedPeriod) {
+        case 'Ontem':
+          return itemDate.toDateString() === yesterday.toDateString();
+        case 'Semana':
+          const weekAgo = new Date(today);
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          return itemDate >= weekAgo && itemDate <= today;
+        case 'Mensal':
+          const monthAgo = new Date(today);
+          monthAgo.setMonth(monthAgo.getMonth() - 1);
+          return itemDate >= monthAgo && itemDate <= today;
+        case 'Anual':
+          const yearAgo = new Date(today);
+          yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+          return itemDate >= yearAgo && itemDate <= today;
+        default:
+          const start = new Date(startDate);
+          const end = new Date(endDate);
+          return itemDate >= start && itemDate <= end;
+      }
+    });
+  }, [processedData, selectedPeriod, startDate, endDate]);
+
+  const aggregatedData = useMemo(() => {
+    if (filteredData.length === 0) {
+      return {
+        totalInseridos: 0,
+        totalRejeitos: 0,
+        eficiencia: 0,
+        inseridos1T: 0,
+        rejeitos1T: 0,
+        aderencia1T: 0,
+        inseridos2T: 0,
+        rejeitos2T: 0,
+        aderencia2T: 0,
+        inseridos3T: 0,
+        rejeitos3T: 0,
+        aderencia3T: 0
+      };
+    }
+
+    const totals = filteredData.reduce((acc, curr) => ({
+      totalInseridos: acc.totalInseridos + curr.totalInseridos,
+      totalRejeitos: acc.totalRejeitos + curr.totalRejeitos,
+      inseridos1T: acc.inseridos1T + curr.inseridos1T,
+      rejeitos1T: acc.rejeitos1T + curr.rejeitos1T,
+      inseridos2T: acc.inseridos2T + curr.inseridos2T,
+      rejeitos2T: acc.rejeitos2T + curr.rejeitos2T,
+      inseridos3T: acc.inseridos3T + curr.inseridos3T,
+      rejeitos3T: acc.rejeitos3T + curr.rejeitos3T,
+    }), {
+      totalInseridos: 0,
+      totalRejeitos: 0,
+      inseridos1T: 0,
+      rejeitos1T: 0,
+      inseridos2T: 0,
+      rejeitos2T: 0,
+      inseridos3T: 0,
+      rejeitos3T: 0,
+    });
+
+    const total = totals.totalInseridos + totals.totalRejeitos;
+    const eficiencia = total > 0 ? (totals.totalInseridos / total) * 100 : 0;
+
+    const total1T = totals.inseridos1T + totals.rejeitos1T;
+    const aderencia1T = total1T > 0 ? (totals.inseridos1T / total1T) * 100 : 0;
+
+    const total2T = totals.inseridos2T + totals.rejeitos2T;
+    const aderencia2T = total2T > 0 ? (totals.inseridos2T / total2T) * 100 : 0;
+
+    const total3T = totals.inseridos3T + totals.rejeitos3T;
+    const aderencia3T = total3T > 0 ? (totals.inseridos3T / total3T) * 100 : 0;
+
+    return {
+      ...totals,
+      eficiencia,
+      aderencia1T,
+      aderencia2T,
+      aderencia3T
+    };
+  }, [filteredData]);
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result as string;
+        setCsvData(content);
+        toast({
+          title: "CSV importado com sucesso!",
+          description: `Arquivo ${file.name} foi carregado.`,
+        });
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleImportClick = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.txt';
+    input.onchange = handleFileUpload;
+    input.click();
   };
 
   return (
@@ -181,7 +284,7 @@ const Index = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold text-slate-800">Status Paletização</h1>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleImportClick}>
             <Upload className="h-4 w-4 mr-2" />
             Importar CSV
           </Button>
@@ -201,11 +304,21 @@ const Index = () => {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>De</span>
-              <input type="date" defaultValue="2025-06-08" className="border rounded px-2 py-1" />
+              <input 
+                type="date" 
+                value={startDate} 
+                onChange={(e) => setStartDate(e.target.value)}
+                className="border rounded px-2 py-1" 
+              />
             </div>
             <div className="flex items-center gap-2">
               <span>Até</span>
-              <input type="date" defaultValue="2025-06-08" className="border rounded px-2 py-1" />
+              <input 
+                type="date" 
+                value={endDate} 
+                onChange={(e) => setEndDate(e.target.value)}
+                className="border rounded px-2 py-1" 
+              />
             </div>
           </div>
         </div>
@@ -216,7 +329,7 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-muted-foreground mb-2">Aderência Total</div>
-                <div className="text-4xl font-bold text-yellow-600">{latestData.eficiencia.toFixed(2)}%</div>
+                <div className="text-4xl font-bold text-yellow-600">{aggregatedData.eficiencia.toFixed(2)}%</div>
               </div>
               <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-yellow-600" />
@@ -228,7 +341,7 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-muted-foreground mb-2">Inseridos Total</div>
-                <div className="text-4xl font-bold text-green-600">{latestData.totalInseridos}</div>
+                <div className="text-4xl font-bold text-green-600">{aggregatedData.totalInseridos}</div>
               </div>
               <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
                 <Calendar className="h-6 w-6 text-green-600" />
@@ -240,7 +353,7 @@ const Index = () => {
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-muted-foreground mb-2">Rejeitados Total</div>
-                <div className="text-4xl font-bold text-red-600">{latestData.totalRejeitos}</div>
+                <div className="text-4xl font-bold text-red-600">{aggregatedData.totalRejeitos}</div>
               </div>
               <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
                 <X className="h-6 w-6 text-red-600" />
@@ -252,22 +365,22 @@ const Index = () => {
         {/* Shift Performance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <CircularProgress
-            percentage={latestData.aderencia1T}
+            percentage={aggregatedData.aderencia1T}
             label="Turno 1"
-            inseridos={latestData.inseridos1T}
-            rejeitos={latestData.rejeitos1T}
+            inseridos={aggregatedData.inseridos1T}
+            rejeitos={aggregatedData.rejeitos1T}
           />
           <CircularProgress
-            percentage={latestData.aderencia2T}
+            percentage={aggregatedData.aderencia2T}
             label="Turno 2"
-            inseridos={latestData.inseridos2T}
-            rejeitos={latestData.rejeitos2T}
+            inseridos={aggregatedData.inseridos2T}
+            rejeitos={aggregatedData.rejeitos2T}
           />
           <CircularProgress
-            percentage={latestData.aderencia3T}
+            percentage={aggregatedData.aderencia3T}
             label="Turno 3"
-            inseridos={latestData.inseridos3T}
-            rejeitos={latestData.rejeitos3T}
+            inseridos={aggregatedData.inseridos3T}
+            rejeitos={aggregatedData.rejeitos3T}
           />
         </div>
 
@@ -279,7 +392,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={processedData.slice(-30)}>
+                <LineChart data={filteredData.slice(-30)}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="date" 
@@ -311,7 +424,7 @@ const Index = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={processedData.slice(-30)}>
+                <BarChart data={filteredData.slice(-30)}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
                     dataKey="date" 
