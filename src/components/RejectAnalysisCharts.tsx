@@ -103,8 +103,8 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                   borderRadius: '12px',
                   boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
                 }}
-                formatter={(value, name) => [value, 'Quantidade']}
-                labelFormatter={(label) => `Tipo: ${label}`}
+                formatter={(value: any, name: any) => [value, 'Quantidade']}
+                labelFormatter={(label: any) => `Tipo: ${label}`}
               />
               <Bar 
                 dataKey="value" 
@@ -149,7 +149,7 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                     borderRadius: '12px',
                     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
                   }}
-                  formatter={(value, name) => [value, 'Rejeitos']}
+                  formatter={(value: any, name: any) => [value, 'Rejeitos']}
                 />
               </PieChart>
             </ResponsiveContainer>

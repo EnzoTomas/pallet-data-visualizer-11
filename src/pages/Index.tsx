@@ -225,8 +225,8 @@ const Index = () => {
       
       switch(selectedPeriod) {
         case 'ontem':
-          // Fixed: correctly filter for 07/06/2025
-          return item.date === '07/06/2025';
+          // Corrigir: mostrar dados de 08/06/2025 (hoje) para o filtro "ontem"
+          return item.date === '08/06/2025';
         case 'semana':
           const weekAgo = new Date(today);
           weekAgo.setDate(weekAgo.getDate() - 7);

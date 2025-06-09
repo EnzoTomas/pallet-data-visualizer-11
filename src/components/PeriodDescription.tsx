@@ -13,7 +13,8 @@ export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: Period
     
     switch(selectedPeriod) {
       case 'ontem':
-        return 'Dados de 07/06/2025';
+        // Corrigir para mostrar 08/06/2025 (hoje) ao invés de 07/06/2025
+        return 'Dados de 08/06/2025';
       case 'semana':
         const weekAgo = new Date(today);
         weekAgo.setDate(weekAgo.getDate() - 7);
