@@ -9,11 +9,10 @@ interface PeriodDescriptionProps {
 
 export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: PeriodDescriptionProps) => {
   const description = useMemo(() => {
-    const today = new Date('2025-06-08'); // Fixed date for demo
+    const today = new Date('2025-06-08'); // Data base corrigida para 08/06/2025
     
     switch(selectedPeriod) {
       case 'ontem':
-        // Corrigir para mostrar 08/06/2025 (hoje) ao invés de 07/06/2025
         return 'Dados de 08/06/2025';
       case 'semana':
         const weekAgo = new Date(today);
@@ -37,8 +36,8 @@ export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: Period
   if (!description) return null;
 
   return (
-    <div className="text-sm text-muted-foreground bg-blue-50 px-3 py-2 rounded-lg border border-blue-200 animate-fade-in">
-      <span className="font-medium text-blue-700">📅 </span>
+    <div className="text-sm text-muted-foreground bg-primary/10 px-3 py-2 rounded-lg border border-primary/20 animate-fade-in">
+      <span className="font-medium text-primary">📅 </span>
       {description}
     </div>
   );

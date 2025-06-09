@@ -54,8 +54,8 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
     .map(([name, value]) => ({ name, value }))
     .filter(item => item.value > 0);
 
-  const colors = ['#ef4444', '#f97316', '#eab308', '#84cc16', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6'];
-  const responsibleColors = ['#ef4444', '#f59e0b', '#10b981'];
+  const colors = ['hsl(var(--destructive))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--primary))', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6'];
+  const responsibleColors = ['hsl(var(--destructive))', 'hsl(var(--secondary))', 'hsl(var(--primary))'];
 
   const getResponsibleIcon = (name: string) => {
     switch(name) {
@@ -69,10 +69,10 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Gráfico de Tipos de Rejeitos */}
-      <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-red-50 border-t-4 border-t-red-500 scroll-animate">
+      <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-destructive/5 border-t-4 border-t-destructive scroll-animate">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-            <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
+          <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
+            <AlertTriangle className="h-5 w-5 mr-2 text-destructive" />
             Análise de Rejeitos por Tipo
           </CardTitle>
         </CardHeader>
@@ -87,24 +87,24 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                   </linearGradient>
                 ))}
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#fee2e2" />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
               <XAxis 
                 dataKey="name" 
-                tick={{ fontSize: 10, fill: '#6b7280' }}
+                tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
               />
-              <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
+              <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
               <Tooltip 
                 contentStyle={{
-                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  backgroundColor: 'hsl(var(--card))',
                   border: 'none',
                   borderRadius: '12px',
                   boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
                 }}
-                formatter={(value: any, name: any) => [value, 'Quantidade']}
-                labelFormatter={(label: any) => `Tipo: ${label}`}
+                formatter={(value: number) => [value, 'Quantidade']}
+                labelFormatter={(label: string) => `Tipo: ${label}`}
               />
               <Bar 
                 dataKey="value" 
@@ -118,10 +118,10 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
       </Card>
 
       {/* Gráfico de Responsáveis */}
-      <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-orange-50 border-t-4 border-t-orange-500 scroll-animate">
+      <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-secondary/5 border-t-4 border-t-secondary scroll-animate">
         <CardHeader className="pb-4">
-          <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-            <User className="h-5 w-5 mr-2 text-orange-500" />
+          <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
+            <User className="h-5 w-5 mr-2 text-secondary" />
             Responsabilidade por Rejeitos
           </CardTitle>
         </CardHeader>
@@ -144,19 +144,19 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                 </Pie>
                 <Tooltip 
                   contentStyle={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    backgroundColor: 'hsl(var(--card))',
                     border: 'none',
                     borderRadius: '12px',
                     boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
                   }}
-                  formatter={(value: any, name: any) => [value, 'Rejeitos']}
+                  formatter={(value: number) => [value, 'Rejeitos']}
                 />
               </PieChart>
             </ResponsiveContainer>
             
             <div className="space-y-3">
               {responsibleChartData.map((item, index) => (
-                <div key={item.name} className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm border">
+                <div key={item.name} className="flex items-center gap-3 bg-card p-3 rounded-lg shadow-sm border">
                   <div 
                     className="w-4 h-4 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: responsibleColors[index % responsibleColors.length] }}
@@ -164,8 +164,8 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
                     <span className="text-white text-xs">{getResponsibleIcon(item.name)}</span>
                   </div>
                   <div>
-                    <div className="font-medium text-gray-800">{item.name}</div>
-                    <div className="text-sm text-gray-600">{item.value} rejeitos</div>
+                    <div className="font-medium text-card-foreground">{item.name}</div>
+                    <div className="text-sm text-muted-foreground">{item.value} rejeitos</div>
                   </div>
                 </div>
               ))}

@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -217,7 +216,8 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    const today = new Date('2025-06-08'); // Fixed date for demo
+    // Corrigir: usar 08/06/2025 como base para todos os cálculos
+    const today = new Date('2025-06-08'); 
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');
@@ -225,14 +225,12 @@ const Index = () => {
       
       switch(selectedPeriod) {
         case 'ontem':
-          // Corrigir: mostrar dados de 08/06/2025 (hoje) para o filtro "ontem"
           return item.date === '08/06/2025';
         case 'semana':
           const weekAgo = new Date(today);
           weekAgo.setDate(weekAgo.getDate() - 7);
           return itemDate >= weekAgo && itemDate <= today;
         case 'mensal':
-          // Fixed: filter for current month
           const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
           return itemDate >= monthStart && itemDate <= today;
         case 'anual':
@@ -308,27 +306,27 @@ const Index = () => {
   }, [filteredData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 animate-fade-in">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center animate-slide-in-right">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Status Paletização
             </h1>
-            <p className="text-gray-600 mt-2">Dashboard de monitoramento em tempo real</p>
+            <p className="text-muted-foreground mt-2">Dashboard de monitoramento em tempo real</p>
           </div>
           <div className="flex items-center space-x-2">
-            <Activity className="h-6 w-6 text-green-500 animate-pulse" />
-            <span className="text-sm text-green-600 font-medium">Sistema Online</span>
+            <Activity className="h-6 w-6 text-primary animate-pulse" />
+            <span className="text-sm text-primary font-medium">Sistema Online</span>
           </div>
         </div>
 
         {/* Period Selector - Improved mobile layout */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 animate-fade-in">
+        <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-card/20 animate-fade-in">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
             <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full lg:w-auto">
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-gray-100 h-auto">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-muted h-auto">
                 <TabsTrigger value="ontem" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
                   Ontem
                 </TabsTrigger>
@@ -349,22 +347,22 @@ const Index = () => {
             
             {selectedPeriod === 'personalizado' && (
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm animate-scale-in w-full lg:w-auto">
-                <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
-                  <span className="font-medium text-blue-700">De</span>
+                <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
+                  <span className="font-medium text-primary">De</span>
                   <input 
                     type="date" 
                     value={startDate} 
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="border border-blue-200 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                    className="border border-primary/20 rounded px-3 py-1 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" 
                   />
                 </div>
-                <div className="flex items-center gap-2 bg-purple-50 px-4 py-2 rounded-lg">
-                  <span className="font-medium text-purple-700">Até</span>
+                <div className="flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-lg">
+                  <span className="font-medium text-accent">Até</span>
                   <input 
                     type="date" 
                     value={endDate} 
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="border border-purple-200 rounded px-3 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
+                    className="border border-accent/20 rounded px-3 py-1 focus:ring-2 focus:ring-accent focus:border-transparent transition-all" 
                   />
                 </div>
               </div>
@@ -383,60 +381,60 @@ const Index = () => {
 
         {/* Main KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-l-yellow-500 animate-fade-in scroll-animate">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-secondary/50 to-secondary/30 border-l-4 border-l-secondary animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-yellow-700 mb-2 font-medium">Aderência Total</div>
-                <div className="text-4xl font-bold text-yellow-600 transition-all duration-500">
+                <div className="text-sm text-secondary-foreground mb-2 font-medium">Aderência Total</div>
+                <div className="text-4xl font-bold text-secondary-foreground transition-all duration-500">
                   <CountUp end={aggregatedData.eficiencia} decimals={2} suffix="%" />
                 </div>
                 <div className="flex items-center mt-2">
                   {aggregatedData.eficiencia >= 50 ? (
-                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                    <TrendingUp className="h-4 w-4 text-primary mr-1" />
                   ) : (
-                    <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                    <TrendingDown className="h-4 w-4 text-destructive mr-1" />
                   )}
-                  <span className="text-xs text-gray-600">vs período anterior</span>
+                  <span className="text-xs text-muted-foreground">vs período anterior</span>
                 </div>
               </div>
-              <div className="h-16 w-16 bg-yellow-200 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
-                <CheckCircle className="h-8 w-8 text-yellow-600" />
+              <div className="h-16 w-16 bg-secondary/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
+                <CheckCircle className="h-8 w-8 text-secondary-foreground" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500 animate-fade-in scroll-animate">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-primary/20 to-primary/10 border-l-4 border-l-primary animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-green-700 mb-2 font-medium">Inseridos Total</div>
-                <div className="text-4xl font-bold text-green-600 transition-all duration-500">
+                <div className="text-sm text-primary mb-2 font-medium">Inseridos Total</div>
+                <div className="text-4xl font-bold text-primary transition-all duration-500">
                   <CountUp end={aggregatedData.totalInseridos} />
                 </div>
                 <div className="flex items-center mt-2">
-                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-xs text-gray-600">+12% esta semana</span>
+                  <TrendingUp className="h-4 w-4 text-primary mr-1" />
+                  <span className="text-xs text-muted-foreground">+12% esta semana</span>
                 </div>
               </div>
-              <div className="h-16 w-16 bg-green-200 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
-                <Calendar className="h-8 w-8 text-green-600" />
+              <div className="h-16 w-16 bg-primary/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
+                <Calendar className="h-8 w-8 text-primary" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500 animate-fade-in scroll-animate">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-destructive/20 to-destructive/10 border-l-4 border-l-destructive animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-red-700 mb-2 font-medium">Rejeitados Total</div>
-                <div className="text-4xl font-bold text-red-600 transition-all duration-500">
+                <div className="text-sm text-destructive mb-2 font-medium">Rejeitados Total</div>
+                <div className="text-4xl font-bold text-destructive transition-all duration-500">
                   <CountUp end={aggregatedData.totalRejeitos} />
                 </div>
                 <div className="flex items-center mt-2">
-                  <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
-                  <span className="text-xs text-gray-600">-5% esta semana</span>
+                  <TrendingDown className="h-4 w-4 text-primary mr-1" />
+                  <span className="text-xs text-muted-foreground">-5% esta semana</span>
                 </div>
               </div>
-              <div className="h-16 w-16 bg-red-200 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
-                <X className="h-8 w-8 text-red-600" />
+              <div className="h-16 w-16 bg-destructive/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
+                <X className="h-8 w-8 text-destructive" />
               </div>
             </div>
           </Card>
@@ -469,10 +467,10 @@ const Index = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 border-t-4 border-t-blue-500 scroll-animate">
+          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-primary/5 border-t-4 border-t-primary scroll-animate">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
+              <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
+                <TrendingUp className="h-5 w-5 mr-2 text-primary" />
                 Tendência de Eficiência
               </CardTitle>
             </CardHeader>
@@ -481,23 +479,23 @@ const Index = () => {
                 <LineChart data={filteredData.slice(-30)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <defs>
                     <linearGradient id="colorEficiencia" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
                     tickFormatter={(value) => {
                       const [day, month] = value.split('/');
                       return `${day}/${month}`;
                     }}
                   />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
                   <Tooltip 
                     contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      backgroundColor: 'hsl(var(--card))',
                       border: 'none',
                       borderRadius: '12px',
                       boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
@@ -509,11 +507,11 @@ const Index = () => {
                   <Line 
                     type="monotone" 
                     dataKey="eficiencia" 
-                    stroke="#3b82f6" 
+                    stroke="hsl(var(--primary))" 
                     strokeWidth={4}
                     fill="url(#colorEficiencia)"
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6 }}
-                    activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2, fill: '#ffffff' }}
+                    dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 6 }}
+                    activeDot={{ r: 8, stroke: 'hsl(var(--primary))', strokeWidth: 2, fill: 'hsl(var(--card))' }}
                     animationDuration={1500}
                   />
                 </LineChart>
@@ -521,10 +519,10 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 border-t-4 border-t-purple-500 scroll-animate">
+          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-accent/5 border-t-4 border-t-accent scroll-animate">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
-                <Activity className="h-5 w-5 mr-2 text-purple-500" />
+              <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
+                <Activity className="h-5 w-5 mr-2 text-accent" />
                 Volume de Produção
               </CardTitle>
             </CardHeader>
@@ -533,27 +531,27 @@ const Index = () => {
                 <BarChart data={filteredData.slice(-30)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
                   <defs>
                     <linearGradient id="colorInseridos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.7}/>
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.7}/>
                     </linearGradient>
                     <linearGradient id="colorRejeitos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0.7}/>
+                      <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0.7}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 12, fill: '#6b7280' }}
+                    tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }}
                     tickFormatter={(value) => {
                       const [day, month] = value.split('/');
                       return `${day}/${month}`;
                     }}
                   />
-                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
+                  <YAxis tick={{ fontSize: 12, fill: 'hsl(var(--muted-foreground))' }} />
                   <Tooltip 
                     contentStyle={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      backgroundColor: 'hsl(var(--card))',
                       border: 'none',
                       borderRadius: '12px',
                       boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
