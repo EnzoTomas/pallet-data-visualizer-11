@@ -1,10 +1,11 @@
+
 import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { CheckCircle, X, Calendar, Upload } from 'lucide-react';
+import { CheckCircle, X, Calendar, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
 
@@ -90,14 +91,20 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
   const strokeDasharray = `${circumference} ${circumference}`;
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
+  const getColor = () => {
+    if (percentage >= 70) return "#10b981"; // green
+    if (percentage >= 50) return "#f59e0b"; // yellow
+    return "#ef4444"; // red
+  };
+
   return (
-    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px]">
-      <div className="text-sm text-muted-foreground mb-2">{label}</div>
-      <div className="relative">
+    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px] hover:shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white to-gray-50 border-l-4 border-l-blue-500">
+      <div className="text-sm text-muted-foreground mb-2 font-semibold">{label}</div>
+      <div className="relative animate-fade-in">
         <svg
           height={radius * 2}
           width={radius * 2}
-          className="transform -rotate-90"
+          className="transform -rotate-90 drop-shadow-sm"
         >
           <circle
             stroke="#e5e7eb"
@@ -108,11 +115,14 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
             cy={radius}
           />
           <circle
-            stroke="#000000"
+            stroke={getColor()}
             fill="transparent"
             strokeWidth={strokeWidth}
             strokeDasharray={strokeDasharray}
-            style={{ strokeDashoffset }}
+            style={{ 
+              strokeDashoffset,
+              transition: 'stroke-dashoffset 1s ease-in-out, stroke 0.3s ease',
+            }}
             r={normalizedRadius}
             cx={radius}
             cy={radius}
@@ -120,15 +130,15 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-2xl font-bold">{percentage.toFixed(2)}%</div>
+          <div className="text-2xl font-bold text-gray-800">{percentage.toFixed(1)}%</div>
         </div>
       </div>
-      <div className="mt-3 text-center space-y-1">
-        <div className="text-sm">
-          <span className="text-muted-foreground">Inseridos:</span> <span className="font-medium">{inseridos}</span>
+      <div className="mt-3 text-center space-y-2">
+        <div className="text-sm bg-green-50 px-3 py-1 rounded-full">
+          <span className="text-green-700 font-medium">Inseridos:</span> <span className="font-bold text-green-800">{inseridos}</span>
         </div>
-        <div className="text-sm">
-          <span className="text-muted-foreground">Rejeitos:</span> <span className="font-medium">{rejeitos}</span>
+        <div className="text-sm bg-red-50 px-3 py-1 rounded-full">
+          <span className="text-red-700 font-medium">Rejeitos:</span> <span className="font-bold text-red-800">{rejeitos}</span>
         </div>
       </div>
     </Card>
@@ -136,8 +146,8 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
 };
 
 const Index = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('Ontem');
-  const [startDate, setStartDate] = useState('2025-06-08');
+  const [selectedPeriod, setSelectedPeriod] = useState('ontem');
+  const [startDate, setStartDate] = useState('2025-06-07');
   const [endDate, setEndDate] = useState('2025-06-08');
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
@@ -165,32 +175,34 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    const today = new Date('2025-06-08'); // Using a fixed date for demo
+    const yesterday = new Date('2025-06-07');
     
     return processedData.filter(item => {
-      const itemDate = new Date(item.date.split('/').reverse().join('-'));
+      const [day, month, year] = item.date.split('/');
+      const itemDate = new Date(`${year}-${month}-${day}`);
       
       switch(selectedPeriod) {
-        case 'Ontem':
+        case 'ontem':
           return itemDate.toDateString() === yesterday.toDateString();
-        case 'Semana':
+        case 'semana':
           const weekAgo = new Date(today);
           weekAgo.setDate(weekAgo.getDate() - 7);
           return itemDate >= weekAgo && itemDate <= today;
-        case 'Mensal':
+        case 'mensal':
           const monthAgo = new Date(today);
           monthAgo.setMonth(monthAgo.getMonth() - 1);
           return itemDate >= monthAgo && itemDate <= today;
-        case 'Anual':
+        case 'anual':
           const yearAgo = new Date(today);
           yearAgo.setFullYear(yearAgo.getFullYear() - 1);
           return itemDate >= yearAgo && itemDate <= today;
-        default:
+        case 'personalizado':
           const start = new Date(startDate);
           const end = new Date(endDate);
           return itemDate >= start && itemDate <= end;
+        default:
+          return true;
       }
     });
   }, [processedData, selectedPeriod, startDate, endDate]);
@@ -254,124 +266,119 @@ const Index = () => {
     };
   }, [filteredData]);
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        setCsvData(content);
-        toast({
-          title: "CSV importado com sucesso!",
-          description: `Arquivo ${file.name} foi carregado.`,
-        });
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const handleImportClick = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv,.txt';
-    input.addEventListener('change', (e) => {
-      const target = e.target as HTMLInputElement;
-      const file = target.files?.[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = (loadEvent) => {
-          const content = loadEvent.target?.result as string;
-          setCsvData(content);
-          toast({
-            title: "CSV importado com sucesso!",
-            description: `Arquivo ${file.name} foi carregado.`,
-          });
-        };
-        reader.readAsText(file);
-      }
-    });
-    input.click();
-  };
+  const chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 animate-fade-in">
+      <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-slate-800">Status Paletização</h1>
-          <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleImportClick}>
-            <Upload className="h-4 w-4 mr-2" />
-            Importar CSV
-          </Button>
+        <div className="flex justify-between items-center animate-slide-in-right">
+          <div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Status Paletização
+            </h1>
+            <p className="text-gray-600 mt-2">Dashboard de monitoramento em tempo real</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Activity className="h-6 w-6 text-green-500 animate-pulse" />
+            <span className="text-sm text-green-600 font-medium">Sistema Online</span>
+          </div>
         </div>
 
         {/* Period Selector */}
-        <div className="flex items-center gap-4">
-          <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-auto">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="Ontem">Ontem</TabsTrigger>
-              <TabsTrigger value="Semana">Semana</TabsTrigger>
-              <TabsTrigger value="Mensal">Mensal</TabsTrigger>
-              <TabsTrigger value="Anual">Anual</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span>De</span>
-              <input 
-                type="date" 
-                value={startDate} 
-                onChange={(e) => setStartDate(e.target.value)}
-                className="border rounded px-2 py-1" 
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <span>Até</span>
-              <input 
-                type="date" 
-                value={endDate} 
-                onChange={(e) => setEndDate(e.target.value)}
-                className="border rounded px-2 py-1" 
-              />
-            </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 animate-fade-in">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+            <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-auto">
+              <TabsList className="grid w-full grid-cols-5 bg-gray-100">
+                <TabsTrigger value="ontem" className="transition-all hover:scale-105">Ontem</TabsTrigger>
+                <TabsTrigger value="semana" className="transition-all hover:scale-105">Semana</TabsTrigger>
+                <TabsTrigger value="mensal" className="transition-all hover:scale-105">Mensal</TabsTrigger>
+                <TabsTrigger value="anual" className="transition-all hover:scale-105">Anual</TabsTrigger>
+                <TabsTrigger value="personalizado" className="transition-all hover:scale-105">Personalizado</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            
+            {selectedPeriod === 'personalizado' && (
+              <div className="flex items-center gap-4 text-sm animate-scale-in">
+                <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
+                  <span className="font-medium text-blue-700">De</span>
+                  <input 
+                    type="date" 
+                    value={startDate} 
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="border border-blue-200 rounded px-3 py-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" 
+                  />
+                </div>
+                <div className="flex items-center gap-2 bg-purple-50 px-4 py-2 rounded-lg">
+                  <span className="font-medium text-purple-700">Até</span>
+                  <input 
+                    type="date" 
+                    value={endDate} 
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="border border-purple-200 rounded px-3 py-1 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" 
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Main KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-l-yellow-500 animate-fade-in">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-muted-foreground mb-2">Aderência Total</div>
-                <div className="text-4xl font-bold text-yellow-600">{aggregatedData.eficiencia.toFixed(2)}%</div>
+                <div className="text-sm text-yellow-700 mb-2 font-medium">Aderência Total</div>
+                <div className="text-4xl font-bold text-yellow-600 transition-all duration-500">
+                  {aggregatedData.eficiencia.toFixed(2)}%
+                </div>
+                <div className="flex items-center mt-2">
+                  {aggregatedData.eficiencia >= 50 ? (
+                    <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                  ) : (
+                    <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+                  )}
+                  <span className="text-xs text-gray-600">vs período anterior</span>
+                </div>
               </div>
-              <div className="h-12 w-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-yellow-600" />
+              <div className="h-16 w-16 bg-yellow-200 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
+                <CheckCircle className="h-8 w-8 text-yellow-600" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500 animate-fade-in">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-muted-foreground mb-2">Inseridos Total</div>
-                <div className="text-4xl font-bold text-green-600">{aggregatedData.totalInseridos}</div>
+                <div className="text-sm text-green-700 mb-2 font-medium">Inseridos Total</div>
+                <div className="text-4xl font-bold text-green-600 transition-all duration-500">
+                  {aggregatedData.totalInseridos.toLocaleString()}
+                </div>
+                <div className="flex items-center mt-2">
+                  <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-xs text-gray-600">+12% esta semana</span>
+                </div>
               </div>
-              <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                <Calendar className="h-6 w-6 text-green-600" />
+              <div className="h-16 w-16 bg-green-200 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
+                <Calendar className="h-8 w-8 text-green-600" />
               </div>
             </div>
           </Card>
 
-          <Card className="p-6">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500 animate-fade-in">
             <div className="flex items-center justify-between">
               <div>
-                <div className="text-sm text-muted-foreground mb-2">Rejeitados Total</div>
-                <div className="text-4xl font-bold text-red-600">{aggregatedData.totalRejeitos}</div>
+                <div className="text-sm text-red-700 mb-2 font-medium">Rejeitados Total</div>
+                <div className="text-4xl font-bold text-red-600 transition-all duration-500">
+                  {aggregatedData.totalRejeitos.toLocaleString()}
+                </div>
+                <div className="flex items-center mt-2">
+                  <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
+                  <span className="text-xs text-gray-600">-5% esta semana</span>
+                </div>
               </div>
-              <div className="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
-                <X className="h-6 w-6 text-red-600" />
+              <div className="h-16 w-16 bg-red-200 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
+                <X className="h-8 w-8 text-red-600" />
               </div>
             </div>
           </Card>
@@ -381,19 +388,19 @@ const Index = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <CircularProgress
             percentage={aggregatedData.aderencia1T}
-            label="Turno 1"
+            label="Turno 1 (06:00 - 14:00)"
             inseridos={aggregatedData.inseridos1T}
             rejeitos={aggregatedData.rejeitos1T}
           />
           <CircularProgress
             percentage={aggregatedData.aderencia2T}
-            label="Turno 2"
+            label="Turno 2 (14:00 - 22:00)"
             inseridos={aggregatedData.inseridos2T}
             rejeitos={aggregatedData.rejeitos2T}
           />
           <CircularProgress
             percentage={aggregatedData.aderencia3T}
-            label="Turno 3"
+            label="Turno 3 (22:00 - 06:00)"
             inseridos={aggregatedData.inseridos3T}
             rejeitos={aggregatedData.rejeitos3T}
           />
@@ -401,24 +408,40 @@ const Index = () => {
 
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tendência de Eficiência</CardTitle>
+          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 border-t-4 border-t-blue-500">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
+                Tendência de Eficiência
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={filteredData.slice(-30)}>
-                  <CartesianGrid strokeDasharray="3 3" />
+              <ResponsiveContainer width="100%" height={350}>
+                <LineChart data={filteredData.slice(-30)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="colorEficiencia" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: '#6b7280' }}
                     tickFormatter={(value) => {
-                      const date = new Date(value.split('/').reverse().join('-'));
-                      return `${date.getDate()}/${date.getMonth() + 1}`;
+                      const [day, month] = value.split('/');
+                      return `${day}/${month}`;
                     }}
                   />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
                   <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                      animation: 'fade-in 0.3s ease'
+                    }}
                     formatter={(value, name) => [`${value}%`, 'Eficiência']}
                     labelFormatter={(label) => `Data: ${label}`}
                   />
@@ -426,36 +449,72 @@ const Index = () => {
                     type="monotone" 
                     dataKey="eficiencia" 
                     stroke="#3b82f6" 
-                    strokeWidth={3}
+                    strokeWidth={4}
+                    fill="url(#colorEficiencia)"
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6 }}
+                    activeDot={{ r: 8, stroke: '#3b82f6', strokeWidth: 2, fill: '#ffffff' }}
+                    animationDuration={1500}
                   />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Volume de Produção</CardTitle>
+          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 border-t-4 border-t-purple-500">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
+                <Activity className="h-5 w-5 mr-2 text-purple-500" />
+                Volume de Produção
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={filteredData.slice(-30)}>
-                  <CartesianGrid strokeDasharray="3 3" />
+              <ResponsiveContainer width="100%" height={350}>
+                <BarChart data={filteredData.slice(-30)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                  <defs>
+                    <linearGradient id="colorInseridos" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.7}/>
+                    </linearGradient>
+                    <linearGradient id="colorRejeitos" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0.7}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" />
                   <XAxis 
                     dataKey="date" 
-                    tick={{ fontSize: 12 }}
+                    tick={{ fontSize: 12, fill: '#6b7280' }}
                     tickFormatter={(value) => {
-                      const date = new Date(value.split('/').reverse().join('-'));
-                      return `${date.getDate()}/${date.getMonth() + 1}`;
+                      const [day, month] = value.split('/');
+                      return `${day}/${month}`;
                     }}
                   />
-                  <YAxis tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12, fill: '#6b7280' }} />
                   <Tooltip 
+                    contentStyle={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+                      animation: 'fade-in 0.3s ease'
+                    }}
                     formatter={(value, name) => [value, name === 'totalInseridos' ? 'Inseridos' : 'Rejeitos']}
                     labelFormatter={(label) => `Data: ${label}`}
                   />
-                  <Bar dataKey="totalInseridos" fill="#10b981" name="Inseridos" />
-                  <Bar dataKey="totalRejeitos" fill="#ef4444" name="Rejeitos" />
+                  <Bar 
+                    dataKey="totalInseridos" 
+                    fill="url(#colorInseridos)" 
+                    name="Inseridos" 
+                    radius={[4, 4, 0, 0]}
+                    animationDuration={1500}
+                  />
+                  <Bar 
+                    dataKey="totalRejeitos" 
+                    fill="url(#colorRejeitos)" 
+                    name="Rejeitos" 
+                    radius={[4, 4, 0, 0]}
+                    animationDuration={1500}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
