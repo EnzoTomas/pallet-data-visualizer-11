@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -139,7 +138,7 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    const yesterday = new Date('2025-06-08'); 
+    const yesterday = new Date('2025-06-08'); // Data corrigida para 08/06/2025 (ontem)
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');

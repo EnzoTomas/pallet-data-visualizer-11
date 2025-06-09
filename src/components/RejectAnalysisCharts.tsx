@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList, LineChart, Line, Area, AreaChart } from 'recharts';
-import { AlertTriangle, User, Wrench, TrendingUp, Target, Zap } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList } from 'recharts';
+import { AlertTriangle, User, Wrench, Target, Zap } from 'lucide-react';
 
 interface RejectAnalysisChartsProps {
   data: any[];
@@ -113,7 +113,7 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Dashboard de Rejeitos Redesenhado */}
+      {/* Dashboard de Rejeitos - Somente Cards */}
       <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-red-50/30 to-red-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
         <CardHeader className="pb-6 relative">
@@ -137,100 +137,38 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
         </CardHeader>
         <CardContent className="space-y-4">
           {rejectChartData.length > 0 ? (
-            <>
-              {/* Top 3 Rejeitos em Cards */}
-              <div className="grid grid-cols-1 gap-3 mb-6">
-                {rejectChartData.slice(0, 3).map((item, index) => (
-                  <div 
-                    key={item.name}
-                    className="flex items-center justify-between p-4 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <div 
-                        className="p-2 rounded-lg"
-                        style={{ 
-                          backgroundColor: `${colors[index]}20`,
-                          color: colors[index]
-                        }}
-                      >
-                        {getRejectIcon(item.fullName)}
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-800 text-sm">{item.name}</div>
-                        <div className="text-xs text-gray-500">{item.fullName}</div>
-                      </div>
+            <div className="grid grid-cols-1 gap-3">
+              {rejectChartData.map((item, index) => (
+                <div 
+                  key={item.name}
+                  className="flex items-center justify-between p-4 bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300"
+                >
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="p-2 rounded-lg"
+                      style={{ 
+                        backgroundColor: `${colors[index]}20`,
+                        color: colors[index]
+                      }}
+                    >
+                      {getRejectIcon(item.fullName)}
                     </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold" style={{ color: colors[index] }}>
-                        {item.value}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {item.percentage.toFixed(1)}%
-                      </div>
+                    <div>
+                      <div className="font-semibold text-gray-800 text-sm">{item.name}</div>
+                      <div className="text-xs text-gray-500">{item.fullName}</div>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              {/* Gráfico de Barras Horizontal Melhorado */}
-              <div className="bg-white rounded-xl p-4 shadow-inner">
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart 
-                    data={rejectChartData} 
-                    layout="horizontal"
-                    margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-                  >
-                    <defs>
-                      {colors.map((color, index) => (
-                        <linearGradient key={index} id={`rejectGradient${index}`} x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor={color} stopOpacity={0.8}/>
-                          <stop offset="100%" stopColor={color} stopOpacity={0.4}/>
-                        </linearGradient>
-                      ))}
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis 
-                      type="number"
-                      tick={{ fontSize: 11, fill: '#64748b' }}
-                      axisLine={false}
-                    />
-                    <YAxis 
-                      type="category"
-                      dataKey="name" 
-                      tick={{ fontSize: 10, fill: '#64748b' }}
-                      width={100}
-                      axisLine={false}
-                    />
-                    <Tooltip 
-                      contentStyle={{
-                        backgroundColor: 'white',
-                        border: 'none',
-                        borderRadius: '12px',
-                        boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-                      }}
-                      formatter={(value: number, name: string, props: any) => [
-                        `${value} rejeitos (${props.payload.percentage.toFixed(1)}%)`, 
-                        props.payload.fullName
-                      ]}
-                    />
-                    <Bar 
-                      dataKey="value" 
-                      radius={[0, 6, 6, 0]}
-                      animationDuration={1500}
-                    >
-                      {rejectChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={`url(#rejectGradient${index % colors.length})`} />
-                      ))}
-                      <LabelList 
-                        dataKey="value" 
-                        position="right" 
-                        style={{ fill: '#374151', fontWeight: 'bold', fontSize: '11px' }}
-                      />
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </>
+                  <div className="text-right">
+                    <div className="text-lg font-bold" style={{ color: colors[index] }}>
+                      {item.value}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {item.percentage.toFixed(1)}%
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-center py-8 text-gray-500">
               <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-gray-300" />
@@ -240,7 +178,7 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
         </CardContent>
       </Card>
 
-      {/* Gráfico de Responsáveis Mantido Similar */}
+      {/* Gráfico de Responsáveis - Mantido igual */}
       <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-secondary/5 border-t-4 border-t-secondary scroll-animate">
         <CardHeader className="pb-4">
           <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
