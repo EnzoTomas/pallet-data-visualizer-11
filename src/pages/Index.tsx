@@ -1,5 +1,5 @@
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,9 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { CheckCircle, X, Calendar, TrendingUp, TrendingDown, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from "@/hooks/use-toast";
+import { CountUp } from "@/components/CountUp";
+import { PeriodDescription } from "@/components/PeriodDescription";
+import { RejectAnalysisCharts } from "@/components/RejectAnalysisCharts";
 
 const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
@@ -98,7 +101,7 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
   };
 
   return (
-    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px] hover:shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white to-gray-50 border-l-4 border-l-blue-500">
+    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px] hover:shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white to-gray-50 border-l-4 border-l-blue-500 scroll-animate">
       <div className="text-sm text-muted-foreground mb-2 font-semibold">{label}</div>
       <div className="relative animate-fade-in">
         <svg
@@ -130,15 +133,23 @@ const CircularProgress = ({ percentage, label, inseridos, rejeitos }: {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-2xl font-bold text-gray-800">{percentage.toFixed(1)}%</div>
+          <div className="text-2xl font-bold text-gray-800">
+            <CountUp end={percentage} decimals={1} suffix="%" />
+          </div>
         </div>
       </div>
       <div className="mt-3 text-center space-y-2">
         <div className="text-sm bg-green-50 px-3 py-1 rounded-full">
-          <span className="text-green-700 font-medium">Inseridos:</span> <span className="font-bold text-green-800">{inseridos}</span>
+          <span className="text-green-700 font-medium">Inseridos:</span> 
+          <span className="font-bold text-green-800 ml-1">
+            <CountUp end={inseridos} />
+          </span>
         </div>
         <div className="text-sm bg-red-50 px-3 py-1 rounded-full">
-          <span className="text-red-700 font-medium">Rejeitos:</span> <span className="font-bold text-red-800">{rejeitos}</span>
+          <span className="text-red-700 font-medium">Rejeitos:</span> 
+          <span className="font-bold text-red-800 ml-1">
+            <CountUp end={rejeitos} />
+          </span>
         </div>
       </div>
     </Card>
@@ -152,6 +163,26 @@ const Index = () => {
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
 
+  // Add scroll animation effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollElements = document.querySelectorAll('.scroll-animate');
+      scrollElements.forEach((element) => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementVisible = 150;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+          element.classList.add('animate-fade-in');
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Run on mount
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const processedData = useMemo(() => {
     return csvData.trim().split('\n').map(line => {
       const values = line.split('\t');
@@ -160,6 +191,17 @@ const Index = () => {
         totalInseridos: parseInt(values[1]) || 0,
         totalRejeitos: parseInt(values[2]) || 0,
         eficiencia: parseFloat(values[3]?.replace('%', '').replace(',', '.')) || 0,
+        erroLeituraEtiqueta: parseInt(values[4]) || 0,
+        madeiraPesPallet: parseInt(values[5]) || 0,
+        areaLivrePes: parseInt(values[6]) || 0,
+        erroContornoAltura: parseInt(values[7]) || 0,
+        erroContornoDireita: parseInt(values[8]) || 0,
+        erroContornoEsquerda: parseInt(values[9]) || 0,
+        erroContornoFrente: parseInt(values[10]) || 0,
+        erroContornoTraseira: parseInt(values[11]) || 0,
+        falhaSensor: parseInt(values[12]) || 0,
+        pallet: parseInt(values[13]) || 0,
+        rn: parseInt(values[14]) || 0,
         inseridos1T: parseInt(values[15]) || 0,
         rejeitos1T: parseInt(values[16]) || 0,
         aderencia1T: parseFloat(values[17]?.replace('%', '').replace(',', '.')) || 0,
@@ -175,8 +217,7 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    const today = new Date('2025-06-08'); // Using a fixed date for demo
-    const yesterday = new Date('2025-06-07');
+    const today = new Date('2025-06-08'); // Fixed date for demo
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');
@@ -184,19 +225,19 @@ const Index = () => {
       
       switch(selectedPeriod) {
         case 'ontem':
-          return itemDate.toDateString() === yesterday.toDateString();
+          // Fixed: correctly filter for 07/06/2025
+          return item.date === '07/06/2025';
         case 'semana':
           const weekAgo = new Date(today);
           weekAgo.setDate(weekAgo.getDate() - 7);
           return itemDate >= weekAgo && itemDate <= today;
         case 'mensal':
-          const monthAgo = new Date(today);
-          monthAgo.setMonth(monthAgo.getMonth() - 1);
-          return itemDate >= monthAgo && itemDate <= today;
+          // Fixed: filter for current month
+          const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+          return itemDate >= monthStart && itemDate <= today;
         case 'anual':
-          const yearAgo = new Date(today);
-          yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-          return itemDate >= yearAgo && itemDate <= today;
+          const yearStart = new Date(today.getFullYear(), 0, 1);
+          return itemDate >= yearStart && itemDate <= today;
         case 'personalizado':
           const start = new Date(startDate);
           const end = new Date(endDate);
@@ -266,8 +307,6 @@ const Index = () => {
     };
   }, [filteredData]);
 
-  const chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -285,21 +324,31 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Period Selector */}
+        {/* Period Selector - Improved mobile layout */}
         <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-white/20 animate-fade-in">
           <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-            <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-auto">
-              <TabsList className="grid w-full grid-cols-5 bg-gray-100">
-                <TabsTrigger value="ontem" className="transition-all hover:scale-105">Ontem</TabsTrigger>
-                <TabsTrigger value="semana" className="transition-all hover:scale-105">Semana</TabsTrigger>
-                <TabsTrigger value="mensal" className="transition-all hover:scale-105">Mensal</TabsTrigger>
-                <TabsTrigger value="anual" className="transition-all hover:scale-105">Anual</TabsTrigger>
-                <TabsTrigger value="personalizado" className="transition-all hover:scale-105">Personalizado</TabsTrigger>
+            <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full lg:w-auto">
+              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-gray-100 h-auto">
+                <TabsTrigger value="ontem" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
+                  Ontem
+                </TabsTrigger>
+                <TabsTrigger value="semana" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
+                  Semana
+                </TabsTrigger>
+                <TabsTrigger value="mensal" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
+                  Mensal
+                </TabsTrigger>
+                <TabsTrigger value="anual" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
+                  Anual
+                </TabsTrigger>
+                <TabsTrigger value="personalizado" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2 col-span-2 md:col-span-1">
+                  Personalizado
+                </TabsTrigger>
               </TabsList>
             </Tabs>
             
             {selectedPeriod === 'personalizado' && (
-              <div className="flex items-center gap-4 text-sm animate-scale-in">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm animate-scale-in w-full lg:w-auto">
                 <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg">
                   <span className="font-medium text-blue-700">De</span>
                   <input 
@@ -321,16 +370,25 @@ const Index = () => {
               </div>
             )}
           </div>
+          
+          {/* Period Description */}
+          <div className="mt-4">
+            <PeriodDescription 
+              selectedPeriod={selectedPeriod} 
+              startDate={startDate} 
+              endDate={endDate} 
+            />
+          </div>
         </div>
 
         {/* Main KPI Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-l-yellow-500 animate-fade-in">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-yellow-50 to-yellow-100 border-l-4 border-l-yellow-500 animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-yellow-700 mb-2 font-medium">Aderência Total</div>
                 <div className="text-4xl font-bold text-yellow-600 transition-all duration-500">
-                  {aggregatedData.eficiencia.toFixed(2)}%
+                  <CountUp end={aggregatedData.eficiencia} decimals={2} suffix="%" />
                 </div>
                 <div className="flex items-center mt-2">
                   {aggregatedData.eficiencia >= 50 ? (
@@ -347,12 +405,12 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500 animate-fade-in">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-l-green-500 animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-green-700 mb-2 font-medium">Inseridos Total</div>
                 <div className="text-4xl font-bold text-green-600 transition-all duration-500">
-                  {aggregatedData.totalInseridos.toLocaleString()}
+                  <CountUp end={aggregatedData.totalInseridos} />
                 </div>
                 <div className="flex items-center mt-2">
                   <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
@@ -365,12 +423,12 @@ const Index = () => {
             </div>
           </Card>
 
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500 animate-fade-in">
+          <Card className="p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-l-red-500 animate-fade-in scroll-animate">
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-sm text-red-700 mb-2 font-medium">Rejeitados Total</div>
                 <div className="text-4xl font-bold text-red-600 transition-all duration-500">
-                  {aggregatedData.totalRejeitos.toLocaleString()}
+                  <CountUp end={aggregatedData.totalRejeitos} />
                 </div>
                 <div className="flex items-center mt-2">
                   <TrendingDown className="h-4 w-4 text-green-500 mr-1" />
@@ -406,9 +464,12 @@ const Index = () => {
           />
         </div>
 
+        {/* Reject Analysis Charts */}
+        <RejectAnalysisCharts data={filteredData} />
+
         {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 border-t-4 border-t-blue-500">
+          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-blue-50 border-t-4 border-t-blue-500 scroll-animate">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
                 <TrendingUp className="h-5 w-5 mr-2 text-blue-500" />
@@ -460,7 +521,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 border-t-4 border-t-purple-500">
+          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-purple-50 border-t-4 border-t-purple-500 scroll-animate">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl font-bold text-gray-800 flex items-center">
                 <Activity className="h-5 w-5 mr-2 text-purple-500" />
