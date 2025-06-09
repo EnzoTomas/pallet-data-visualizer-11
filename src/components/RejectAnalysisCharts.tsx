@@ -11,14 +11,14 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
   // Processar dados de rejeitos por tipo
   const rejectTypeData = data.reduce((acc, item) => {
     const rejects = {
-      'Erro de leitura da etiqueta': item.erroLeituraEtiqueta || 0,
-      'Madeira dos pés do pallet': item.madeiraPesPallet || 0,
-      'Área livre nos pés': item.areaLivrePes || 0,
-      'Erro de contorno: Altura': item.erroContornoAltura || 0,
-      'Erro de contorno: Direita': item.erroContornoDireita || 0,
-      'Erro de contorno: Esquerda': item.erroContornoEsquerda || 0,
-      'Erro de contorno: Frente': item.erroContornoFrente || 0,
-      'Erro de contorno: Traseira': item.erroContornoTraseira || 0,
+      'Erro de leitura da etiqueta': Number(item.erroLeituraEtiqueta) || 0,
+      'Madeira dos pés do pallet': Number(item.madeiraPesPallet) || 0,
+      'Área livre nos pés': Number(item.areaLivrePes) || 0,
+      'Erro de contorno: Altura': Number(item.erroContornoAltura) || 0,
+      'Erro de contorno: Direita': Number(item.erroContornoDireita) || 0,
+      'Erro de contorno: Esquerda': Number(item.erroContornoEsquerda) || 0,
+      'Erro de contorno: Frente': Number(item.erroContornoFrente) || 0,
+      'Erro de contorno: Traseira': Number(item.erroContornoTraseira) || 0,
     };
 
     Object.entries(rejects).forEach(([type, count]) => {
@@ -32,9 +32,9 @@ export const RejectAnalysisCharts = ({ data }: RejectAnalysisChartsProps) => {
   // Processar dados de responsáveis
   const responsibleData = data.reduce((acc, item) => {
     const responsible = {
-      'Falha no Sensor': item.falhaSensor || 0,
-      'Pallet': item.pallet || 0,
-      'RN': item.rn || 0,
+      'Falha no Sensor': Number(item.falhaSensor) || 0,
+      'Pallet': Number(item.pallet) || 0,
+      'RN': Number(item.rn) || 0,
     };
 
     Object.entries(responsible).forEach(([type, count]) => {

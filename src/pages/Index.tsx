@@ -216,12 +216,12 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    // Corrigir: usar 08/06/2025 como base para todos os cálculos
+    // Usar 08/06/2025 como base para todos os cálculos
     const today = new Date('2025-06-08'); 
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');
-      const itemDate = new Date(`${year}-${month}-${day}`);
+      const itemDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
       
       switch(selectedPeriod) {
         case 'ontem':
