@@ -1,15 +1,13 @@
+
 import { useState, useMemo, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { CheckCircle, X, Calendar, TrendingUp, TrendingDown, Activity, Target, Zap } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import { CountUp } from "@/components/CountUp";
-import { PeriodDescription } from "@/components/PeriodDescription";
+import { PeriodSelector } from "@/components/PeriodSelector";
+import { MainKPICards } from "@/components/MainKPICards";
+import { CircularProgress } from "@/components/CircularProgress";
 import { RejectAnalysisCharts } from "@/components/RejectAnalysisCharts";
+import { TrendChart } from "@/components/TrendChart";
+import { VolumeChart } from "@/components/VolumeChart";
 
 const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
@@ -80,81 +78,6 @@ const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,0
 07/06/2025	114	77	59,69%	30	0	2	1	37	15	8	2	30	2	58	56	40	58,33%	18	11	62,07%	40	26	60,61%
 08/06/2025	9	5	64,29%	4	0	0	0	1	0	0	0	4	0	1	0	0		0	0		9	5	64,29%`;
 
-const CircularProgress = ({ percentage, label, inseridos, rejeitos }: { 
-  percentage: number; 
-  label: string; 
-  inseridos: number; 
-  rejeitos: number; 
-}) => {
-  const radius = 45;
-  const strokeWidth = 8;
-  const normalizedRadius = radius - strokeWidth * 2;
-  const circumference = normalizedRadius * 2 * Math.PI;
-  const strokeDasharray = `${circumference} ${circumference}`;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-  const getColor = () => {
-    if (percentage >= 70) return "#10b981"; // green
-    if (percentage >= 50) return "#f59e0b"; // yellow
-    return "#ef4444"; // red
-  };
-
-  return (
-    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px] hover:shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white to-gray-50 border-l-4 border-l-blue-500 scroll-animate">
-      <div className="text-sm text-muted-foreground mb-2 font-semibold">{label}</div>
-      <div className="relative animate-fade-in">
-        <svg
-          height={radius * 2}
-          width={radius * 2}
-          className="transform -rotate-90 drop-shadow-sm"
-        >
-          <circle
-            stroke="#e5e7eb"
-            fill="transparent"
-            strokeWidth={strokeWidth}
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
-          />
-          <circle
-            stroke={getColor()}
-            fill="transparent"
-            strokeWidth={strokeWidth}
-            strokeDasharray={strokeDasharray}
-            style={{ 
-              strokeDashoffset,
-              transition: 'stroke-dashoffset 1s ease-in-out, stroke 0.3s ease',
-            }}
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-2xl font-bold text-gray-800">
-            <CountUp end={percentage} decimals={1} suffix="%" />
-          </div>
-        </div>
-      </div>
-      <div className="mt-3 text-center space-y-2">
-        <div className="text-sm bg-green-50 px-3 py-1 rounded-full">
-          <span className="text-green-700 font-medium">Inseridos:</span> 
-          <span className="font-bold text-green-800 ml-1">
-            <CountUp end={inseridos} />
-          </span>
-        </div>
-        <div className="text-sm bg-red-50 px-3 py-1 rounded-full">
-          <span className="text-red-700 font-medium">Rejeitos:</span> 
-          <span className="font-bold text-red-800 ml-1">
-            <CountUp end={rejeitos} />
-          </span>
-        </div>
-      </div>
-    </Card>
-  );
-};
-
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
   const [startDate, setStartDate] = useState('2025-06-07');
@@ -216,7 +139,6 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    // Usar 08/06/2025 (ontem) como base para todos os cálculos
     const yesterday = new Date('2025-06-08'); 
     
     return processedData.filter(item => {
@@ -305,12 +227,12 @@ const Index = () => {
     };
   }, [filteredData]);
 
-  // Preparar dados para o gráfico de tendência melhorado
+  // Preparar dados para o gráfico de tendência
   const trendData = useMemo(() => {
     return filteredData.slice(-30).map(item => ({
       ...item,
-      meta: 75, // Meta de eficiência
-      zona_critica: 50, // Zona crítica
+      meta: 75,
+      zona_critica: 50,
       diferenca_meta: item.eficiencia - 75
     }));
   }, [filteredData]);
@@ -333,121 +255,17 @@ const Index = () => {
         </div>
 
         {/* Period Selector */}
-        <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-card/20 animate-fade-in">
-          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-            <Tabs value={selectedPeriod} onValueChange={setSelectedPeriod} className="w-full lg:w-auto">
-              <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-muted h-auto">
-                <TabsTrigger value="ontem" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
-                  Ontem
-                </TabsTrigger>
-                <TabsTrigger value="semana" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
-                  Semana
-                </TabsTrigger>
-                <TabsTrigger value="mensal" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
-                  Mensal
-                </TabsTrigger>
-                <TabsTrigger value="anual" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2">
-                  Anual
-                </TabsTrigger>
-                <TabsTrigger value="personalizado" className="transition-all hover:scale-105 text-xs md:text-sm px-2 py-2 col-span-2 md:col-span-1">
-                  Personalizado
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            
-            {selectedPeriod === 'personalizado' && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 text-sm animate-scale-in w-full lg:w-auto">
-                <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-lg">
-                  <span className="font-medium text-primary">De</span>
-                  <input 
-                    type="date" 
-                    value={startDate} 
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="border border-primary/20 rounded px-3 py-1 focus:ring-2 focus:ring-primary focus:border-transparent transition-all" 
-                  />
-                </div>
-                <div className="flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-lg">
-                  <span className="font-medium text-accent">Até</span>
-                  <input 
-                    type="date" 
-                    value={endDate} 
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="border border-accent/20 rounded px-3 py-1 focus:ring-2 focus:ring-accent focus:border-transparent transition-all" 
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-          
-          <div className="mt-4">
-            <PeriodDescription 
-              selectedPeriod={selectedPeriod} 
-              startDate={startDate} 
-              endDate={endDate} 
-            />
-          </div>
-        </div>
+        <PeriodSelector
+          selectedPeriod={selectedPeriod}
+          onPeriodChange={setSelectedPeriod}
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+        />
 
         {/* Main KPI Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-secondary/50 to-secondary/30 border-l-4 border-l-secondary animate-fade-in scroll-animate">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-secondary-foreground mb-2 font-medium">Aderência Total</div>
-                <div className="text-4xl font-bold text-secondary-foreground transition-all duration-500">
-                  <CountUp end={aggregatedData.eficiencia} decimals={2} suffix="%" />
-                </div>
-                <div className="flex items-center mt-2">
-                  {aggregatedData.eficiencia >= 50 ? (
-                    <TrendingUp className="h-4 w-4 text-primary mr-1" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4 text-destructive mr-1" />
-                  )}
-                  <span className="text-xs text-muted-foreground">vs período anterior</span>
-                </div>
-              </div>
-              <div className="h-16 w-16 bg-secondary/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
-                <CheckCircle className="h-8 w-8 text-secondary-foreground" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-primary/20 to-primary/10 border-l-4 border-l-primary animate-fade-in scroll-animate">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-primary mb-2 font-medium">Inseridos Total</div>
-                <div className="text-4xl font-bold text-primary transition-all duration-500">
-                  <CountUp end={aggregatedData.totalInseridos} />
-                </div>
-                <div className="flex items-center mt-2">
-                  <TrendingUp className="h-4 w-4 text-primary mr-1" />
-                  <span className="text-xs text-muted-foreground">+12% esta semana</span>
-                </div>
-              </div>
-              <div className="h-16 w-16 bg-primary/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
-                <Calendar className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-destructive/20 to-destructive/10 border-l-4 border-l-destructive animate-fade-in scroll-animate">
-            <div className="flex items-center justify-between">
-              <div>
-                <div className="text-sm text-destructive mb-2 font-medium">Rejeitados Total</div>
-                <div className="text-4xl font-bold text-destructive transition-all duration-500">
-                  <CountUp end={aggregatedData.totalRejeitos} />
-                </div>
-                <div className="flex items-center mt-2">
-                  <TrendingDown className="h-4 w-4 text-primary mr-1" />
-                  <span className="text-xs text-muted-foreground">-5% esta semana</span>
-                </div>
-              </div>
-              <div className="h-16 w-16 bg-destructive/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
-                <X className="h-8 w-8 text-destructive" />
-              </div>
-            </div>
-          </Card>
-        </div>
+        <MainKPICards aggregatedData={aggregatedData} />
 
         {/* Shift Performance Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -474,148 +292,14 @@ const Index = () => {
         {/* Reject Analysis Charts */}
         <RejectAnalysisCharts data={filteredData} />
 
-        {/* Charts Section Melhorado */}
+        {/* Charts Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Gráfico de Tendência Redesenhado */}
-          <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
-            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-green-500 to-blue-600"></div>
-            <CardHeader className="pb-6 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="p-3 bg-blue-500/10 rounded-xl">
-                    <TrendingUp className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl font-bold text-gray-800">
-                      Análise de Performance
-                    </CardTitle>
-                    <p className="text-sm text-gray-600 mt-1">Eficiência vs Meta (75%)</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {aggregatedData.eficiencia.toFixed(1)}%
-                  </div>
-                  <div className="text-xs text-gray-500">Atual</div>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Indicadores de Performance */}
-              <div className="grid grid-cols-3 gap-4 mb-6">
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <Target className="h-5 w-5 mx-auto text-green-600 mb-1" />
-                  <div className="text-lg font-bold text-green-600">75%</div>
-                  <div className="text-xs text-gray-600">Meta</div>
-                </div>
-                <div className="text-center p-3 bg-yellow-50 rounded-lg">
-                  <Zap className="h-5 w-5 mx-auto text-yellow-600 mb-1" />
-                  <div className="text-lg font-bold text-yellow-600">50%</div>
-                  <div className="text-xs text-gray-600">Crítico</div>
-                </div>
-                <div className="text-center p-3 bg-blue-50 rounded-lg">
-                  <Activity className="h-5 w-5 mx-auto text-blue-600 mb-1" />
-                  <div className={`text-lg font-bold ${aggregatedData.eficiencia >= 75 ? 'text-green-600' : aggregatedData.eficiencia >= 50 ? 'text-yellow-600' : 'text-red-600'}`}>
-                    {aggregatedData.eficiencia >= 75 ? 'Excelente' : aggregatedData.eficiencia >= 50 ? 'Atenção' : 'Crítico'}
-                  </div>
-                  <div className="text-xs text-gray-600">Status</div>
-                </div>
-              </div>
+          <TrendChart trendData={trendData} currentEfficiency={aggregatedData.eficiencia} />
+          <VolumeChart volumeData={filteredData.slice(-30)} />
+        </div>
+      </div>
+    </div>
+  );
+};
 
-              <ResponsiveContainer width="100%" height={320}>
-                <AreaChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorEficiencia" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                    </linearGradient>
-                    <linearGradient id="colorMeta" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-                    </linearGradient>
-                    <linearGradient id="colorCritica" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
-                    </linearGradient>
-                  </defs>
-                  
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="date" 
-                    tick={{ fontSize: 11, fill: '#6b7280' }}
-                    tickFormatter={(value) => {
-                      const [day, month] = value.split('/');
-                      return `${day}/${month}`;
-                    }}
-                  />
-                  <YAxis 
-                    tick={{ fontSize: 11, fill: '#6b7280' }}
-                    domain={[0, 100]}
-                  />
-                  
-                  {/* Área da zona crítica */}
-                  <Area
-                    type="monotone"
-                    dataKey={() => 50}
-                    stroke="none"
-                    fill="url(#colorCritica)"
-                    fillOpacity={0.3}
-                  />
-                  
-                  {/* Linha da meta */}
-                  <Line
-                    type="monotone"
-                    dataKey="meta"
-                    stroke="#10b981"
-                    strokeWidth={2}
-                    strokeDasharray="5 5"
-                    dot={false}
-                  />
-                  
-                  {/* Área principal da eficiência */}
-                  <Area
-                    type="monotone"
-                    dataKey="eficiencia"
-                    stroke="#3b82f6"
-                    strokeWidth={3}
-                    fill="url(#colorEficiencia)"
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: '#ffffff' }}
-                  />
-                  
-                  <Tooltip 
-                    contentStyle={{
-                      backgroundColor: 'white',
-                      border: 'none',
-                      borderRadius: '12px',
-                      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)',
-                    }}
-                    formatter={(value: number, name: string) => {
-                      if (name === 'eficiencia') return [`${value.toFixed(1)}%`, 'Eficiência'];
-                      if (name === 'meta') return [`${value}%`, 'Meta'];
-                      return [value, name];
-                    }}
-                    labelFormatter={(label) => `Data: ${label}`}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          {/* Volume de Produção Mantido Similar */}
-          <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-accent/5 border-t-4 border-t-accent scroll-animate">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-xl font-bold text-card-foreground flex items-center">
-                <Activity className="h-5 w-5 mr-2 text-accent" />
-                Volume de Produção
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={filteredData.slice(-30)} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorInseridos" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.9}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.7}/>
-                    </linearGradient>
-                    <linearGradient
+export default Index;
