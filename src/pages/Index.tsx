@@ -274,7 +274,22 @@ const Index = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.csv,.txt';
-    input.onchange = handleFileUpload;
+    input.addEventListener('change', (e) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (loadEvent) => {
+          const content = loadEvent.target?.result as string;
+          setCsvData(content);
+          toast({
+            title: "CSV importado com sucesso!",
+            description: `Arquivo ${file.name} foi carregado.`,
+          });
+        };
+        reader.readAsText(file);
+      }
+    });
     input.click();
   };
 
