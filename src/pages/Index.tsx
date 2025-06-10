@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -14,9 +15,10 @@ import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useTrendData } from "@/hooks/useTrendData";
 import { formatDateForInput, getYesterday } from "@/utils/dateUtils";
 import { DownloadButton } from "@/components/DownloadButton";
+import { ImportButton } from "@/components/ImportButton";
 import { ShareButton } from "@/components/ShareButton";
 
-const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
+const defaultRawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
 04/04/2025	0	0	0,00%	0	0	0	0	0	0	0	0	0	0	0	0	0		0	0		0	0	
 05/04/2025	0	0	0,00%	0	0	0	0	0	0	0	0	0	0	0	0	0		0	0		0	0	
@@ -90,7 +92,7 @@ const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [csvData, setCsvData] = useState(rawData);
+  const [csvData, setCsvData] = useState(defaultRawData);
   const { toast } = useToast();
 
   // Initialize default dates for "ontem"
@@ -109,6 +111,11 @@ const Index = () => {
   // Setup scroll animation
   useScrollAnimation();
 
+  const handleDataImport = (importedData: string) => {
+    setCsvData(importedData);
+    console.log('Dados importados com sucesso');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
@@ -125,6 +132,7 @@ const Index = () => {
               <span className="text-sm text-primary font-medium">Sistema Online</span>
             </div>
             <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
+            <ImportButton onDataImport={handleDataImport} />
             <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
           </div>
         </div>

@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Download } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from 'xlsx';
+import html2canvas from 'html2canvas';
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
 import { AggregatedData } from "@/hooks/useAggregatedData";
 
@@ -15,7 +17,7 @@ interface DownloadButtonProps {
 export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonProps) => {
   const { toast } = useToast();
 
-  const handleDownload = () => {
+  const downloadXLSX = () => {
     try {
       // Criar planilha com dados principais
       const mainData = filteredData.map(item => ({
@@ -81,11 +83,11 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
       XLSX.writeFile(wb, `Status_Paletizacao_${today}.xlsx`);
 
       toast({
-        title: "Download realizado com sucesso!",
+        title: "Download XLSX realizado com sucesso!",
         description: "Os dados foram exportados para o arquivo XLSX.",
       });
     } catch (error) {
-      console.error('Erro ao fazer download:', error);
+      console.error('Erro ao fazer download XLSX:', error);
       toast({
         title: "Erro no download",
         description: "Ocorreu um erro ao exportar os dados.",
@@ -94,15 +96,99 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
     }
   };
 
+  const downloadPNG = async () => {
+    try {
+      const element = document.querySelector('.max-w-7xl') as HTMLElement;
+      if (!element) {
+        throw new Error('Elemento não encontrado');
+      }
+
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      });
+
+      const link = document.createElement('a');
+      link.download = `Status_Paletizacao_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+
+      toast({
+        title: "Download PNG realizado com sucesso!",
+        description: "A imagem foi capturada e baixada.",
+      });
+    } catch (error) {
+      console.error('Erro ao fazer download PNG:', error);
+      toast({
+        title: "Erro no download",
+        description: "Ocorreu um erro ao capturar a imagem.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadPDF = async () => {
+    try {
+      const element = document.querySelector('.max-w-7xl') as HTMLElement;
+      if (!element) {
+        throw new Error('Elemento não encontrado');
+      }
+
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 1.5,
+        useCORS: true,
+        allowTaint: true
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Criar um link temporário para download como imagem
+      // Para PDF real seria necessário uma biblioteca como jsPDF
+      const link = document.createElement('a');
+      link.download = `Status_Paletizacao_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.png`;
+      link.href = imgData;
+      link.click();
+
+      toast({
+        title: "Download de imagem realizado!",
+        description: "A captura foi baixada como imagem (funcionalidade PDF em desenvolvimento).",
+      });
+    } catch (error) {
+      console.error('Erro ao fazer download PDF:', error);
+      toast({
+        title: "Erro no download",
+        description: "Ocorreu um erro ao gerar o arquivo.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
-    <Button
-      onClick={handleDownload}
-      variant="outline"
-      size="sm"
-      className="flex items-center gap-1 px-2 text-xs"
-    >
-      <Download className="h-3 w-3" />
-      <span className="hidden sm:inline">Download XLSX</span>
-    </Button>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-1 px-2 text-xs"
+        >
+          <Download className="h-3 w-3" />
+          <span className="hidden sm:inline">Download</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem onClick={downloadXLSX}>
+          📊 Excel (.xlsx)
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={downloadPNG}>
+          🖼️ Imagem (.png)
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={downloadPDF}>
+          📄 PDF (em breve)
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
