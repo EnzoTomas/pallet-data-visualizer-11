@@ -6,6 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import * as XLSX from 'xlsx';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
 import { AggregatedData } from "@/hooks/useAggregatedData";
 
@@ -105,14 +106,17 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
 
       const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
-        scale: 2,
+        scale: 3,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
+        logging: false,
+        imageTimeout: 30000,
+        removeContainer: true
       });
 
       const link = document.createElement('a');
       link.download = `Status_Paletizacao_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.png`;
-      link.href = canvas.toDataURL();
+      link.href = canvas.toDataURL('image/png', 1.0);
       link.click();
 
       toast({
@@ -138,29 +142,54 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
 
       const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
-        scale: 1.5,
+        scale: 2,
         useCORS: true,
-        allowTaint: true
+        allowTaint: true,
+        logging: false,
+        imageTimeout: 30000,
+        removeContainer: true
       });
 
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       
-      // Criar um link temporário para download como imagem
-      // Para PDF real seria necessário uma biblioteca como jsPDF
-      const link = document.createElement('a');
-      link.download = `Status_Paletizacao_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.png`;
-      link.href = imgData;
-      link.click();
+      // Criar PDF com jsPDF
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      const imgWidth = 297; // A4 landscape width in mm
+      const pageHeight = 210; // A4 landscape height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      // Adicionar primeira página
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
+      heightLeft -= pageHeight;
+
+      // Adicionar páginas extras se necessário
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
+        heightLeft -= pageHeight;
+      }
+
+      const today = new Date().toLocaleDateString('pt-BR').replace(/\//g, '-');
+      pdf.save(`Status_Paletizacao_${today}.pdf`);
 
       toast({
-        title: "Download de imagem realizado!",
-        description: "A captura foi baixada como imagem (funcionalidade PDF em desenvolvimento).",
+        title: "Download PDF realizado com sucesso!",
+        description: "O PDF foi gerado e baixado.",
       });
     } catch (error) {
       console.error('Erro ao fazer download PDF:', error);
       toast({
         title: "Erro no download",
-        description: "Ocorreu um erro ao gerar o arquivo.",
+        description: "Ocorreu um erro ao gerar o PDF.",
         variant: "destructive",
       });
     }
@@ -186,7 +215,7 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
           🖼️ Imagem (.png)
         </DropdownMenuItem>
         <DropdownMenuItem onClick={downloadPDF}>
-          📄 PDF (em breve)
+          📄 PDF
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
