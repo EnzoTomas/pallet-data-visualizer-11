@@ -87,21 +87,22 @@ const Index = () => {
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
 
-  // Inicializar as datas padrão baseadas na data atual
+  // AJUSTE 1: Inicializar as datas padrão dinamicamente para "ontem"
   useEffect(() => {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
     
-    const formatDate = (date: Date) => {
+    // Função para formatar a data para o formato 'YYYY-MM-DD' que o input type="date" usa
+    const formatDateForInput = (date: Date) => {
       return date.toISOString().split('T')[0];
     };
     
-    setStartDate(formatDate(yesterday));
-    setEndDate(formatDate(yesterday));
+    setStartDate(formatDateForInput(yesterday));
+    setEndDate(formatDateForInput(yesterday));
   }, []);
 
-  // Add scroll animation effect
+  // Efeito de animação de scroll (sem alterações)
   useEffect(() => {
     const handleScroll = () => {
       const scrollElements = document.querySelectorAll('.scroll-animate');
@@ -154,49 +155,53 @@ const Index = () => {
     }).filter(item => item.total() > 0);
   }, [csvData]);
 
+  // AJUSTE 2: Lógica de filtragem totalmente dinâmica e com correção de fuso horário
   const filteredData = useMemo(() => {
-    // 1. Pega a data de hoje
     const today = new Date();
-    
-    // 2. Cria uma nova data para "ontem" e subtrai um dia
-    const yesterday = new Date(today);
+    const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
 
-    // 3. Formata a data de ontem para o formato DD/MM/YYYY para comparar com os dados
-    const day = String(yesterday.getDate()).padStart(2, '0');
-    const month = String(yesterday.getMonth() + 1).padStart(2, '0'); // Meses em JS são de 0 a 11
-    const year = yesterday.getFullYear();
-    const formattedYesterday = `${day}/${month}/${year}`;
+    // Formata 'ontem' para string 'DD/MM/YYYY' para comparação direta
+    const formatToDMY = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses em JS são de 0 a 11
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+    const formattedYesterday = formatToDMY(yesterday);
     
     return processedData.filter(item => {
       const [itemDay, itemMonth, itemYear] = item.date.split('/');
       
-      // CORRIGIDO: Adicionamos 'T00:00:00' para forçar o fuso local
+      // CORREÇÃO DE FUSO HORÁRIO (TIMEZONE)
       const itemDate = new Date(`${itemYear}-${itemMonth.padStart(2, '0')}-${itemDay.padStart(2, '0')}T00:00:00`);
       
       switch(selectedPeriod) {
         case 'ontem':
-          // 4. Compara com a data formatada de ontem
           return item.date === formattedYesterday;
+        
         case 'semana':
-          // Últimos 7 dias incluindo ontem
           const weekAgo = new Date(yesterday);
+          weekAgo.setHours(0, 0, 0, 0); // Zera a hora para uma comparação segura
           weekAgo.setDate(weekAgo.getDate() - 6);
           return itemDate >= weekAgo && itemDate <= yesterday;
+        
         case 'mensal':
-          // Do início do mês até ontem
           const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
           return itemDate >= monthStart && itemDate <= yesterday;
+        
         case 'anual':
-          // Do início do ano até ontem
           const yearStart = new Date(yesterday.getFullYear(), 0, 1);
           return itemDate >= yearStart && itemDate <= yesterday;
+        
         case 'personalizado':
-          // CORRIGIDO: Adicionamos o tempo para garantir que a data seja interpretada localmente
-          // Usamos o final do dia para a data final para garantir que o dia inteiro seja incluído
+          if (!startDate || !endDate) return false; // Não filtra se as datas não estiverem setadas
+          
+          // CORREÇÃO DE FUSO HORÁRIO (TIMEZONE)
           const start = new Date(startDate + 'T00:00:00');
-          const end = new Date(endDate + 'T23:59:59');
+          const end = new Date(endDate + 'T23:59:59'); // Usa o fim do dia para incluir a data final completa
           return itemDate >= start && itemDate <= end;
+        
         default:
           return true;
       }
@@ -206,18 +211,10 @@ const Index = () => {
   const aggregatedData = useMemo(() => {
     if (filteredData.length === 0) {
       return {
-        totalInseridos: 0,
-        totalRejeitos: 0,
-        eficiencia: 0,
-        inseridos1T: 0,
-        rejeitos1T: 0,
-        aderencia1T: 0,
-        inseridos2T: 0,
-        rejeitos2T: 0,
-        aderencia2T: 0,
-        inseridos3T: 0,
-        rejeitos3T: 0,
-        aderencia3T: 0
+        totalInseridos: 0, totalRejeitos: 0, eficiencia: 0,
+        inseridos1T: 0, rejeitos1T: 0, aderencia1T: 0,
+        inseridos2T: 0, rejeitos2T: 0, aderencia2T: 0,
+        inseridos3T: 0, rejeitos3T: 0, aderencia3T: 0
       };
     }
 
@@ -231,14 +228,10 @@ const Index = () => {
       inseridos3T: acc.inseridos3T + curr.inseridos3T,
       rejeitos3T: acc.rejeitos3T + curr.rejeitos3T,
     }), {
-      totalInseridos: 0,
-      totalRejeitos: 0,
-      inseridos1T: 0,
-      rejeitos1T: 0,
-      inseridos2T: 0,
-      rejeitos2T: 0,
-      inseridos3T: 0,
-      rejeitos3T: 0,
+      totalInseridos: 0, totalRejeitos: 0,
+      inseridos1T: 0, rejeitos1T: 0,
+      inseridos2T: 0, rejeitos2T: 0,
+      inseridos3T: 0, rejeitos3T: 0,
     });
 
     const total = totals.totalInseridos + totals.totalRejeitos;
@@ -253,16 +246,9 @@ const Index = () => {
     const total3T = totals.inseridos3T + totals.rejeitos3T;
     const aderencia3T = total3T > 0 ? (totals.inseridos3T / total3T) * 100 : 0;
 
-    return {
-      ...totals,
-      eficiencia,
-      aderencia1T,
-      aderencia2T,
-      aderencia3T
-    };
+    return { ...totals, eficiencia, aderencia1T, aderencia2T, aderencia3T };
   }, [filteredData]);
 
-  // Preparar dados para o gráfico de tendência
   const trendData = useMemo(() => {
     return filteredData.slice(-30).map(item => ({
       ...item,
