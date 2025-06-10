@@ -80,7 +80,7 @@ const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,0
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
-  const [startDate, setStartDate] = useState('2025-06-08');
+  const [startDate, setStartDate] = useState('2025-06-09');
   const [endDate, setEndDate] = useState('2025-06-09');
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
