@@ -1,4 +1,5 @@
 
+
 import { useState, useMemo, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -169,7 +170,9 @@ const Index = () => {
     
     return processedData.filter(item => {
       const [itemDay, itemMonth, itemYear] = item.date.split('/');
-      const itemDate = new Date(`${itemYear}-${itemMonth.padStart(2, '0')}-${itemDay.padStart(2, '0')}`);
+      
+      // CORRIGIDO: Adicionamos 'T00:00:00' para forçar o fuso local
+      const itemDate = new Date(`${itemYear}-${itemMonth.padStart(2, '0')}-${itemDay.padStart(2, '0')}T00:00:00`);
       
       switch(selectedPeriod) {
         case 'ontem':
@@ -189,8 +192,10 @@ const Index = () => {
           const yearStart = new Date(yesterday.getFullYear(), 0, 1);
           return itemDate >= yearStart && itemDate <= yesterday;
         case 'personalizado':
-          const start = new Date(startDate);
-          const end = new Date(endDate);
+          // CORRIGIDO: Adicionamos o tempo para garantir que a data seja interpretada localmente
+          // Usamos o final do dia para a data final para garantir que o dia inteiro seja incluído
+          const start = new Date(startDate + 'T00:00:00');
+          const end = new Date(endDate + 'T23:59:59');
           return itemDate >= start && itemDate <= end;
         default:
           return true;
