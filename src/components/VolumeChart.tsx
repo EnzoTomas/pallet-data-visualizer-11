@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, LabelList } from 'recharts';
 import { Activity } from 'lucide-react';
 
 interface VolumeData {
@@ -13,7 +13,8 @@ interface VolumeChartProps {
   volumeData: VolumeData[];
 }
 
-const CustomBarLabel = ({ x, y, width, height, value }: any) => {
+const CustomLabel = (props: any) => {
+  const { x, y, width, height, value } = props;
   if (value === 0) return null;
   
   return (
@@ -23,9 +24,9 @@ const CustomBarLabel = ({ x, y, width, height, value }: any) => {
       fill="white" 
       textAnchor="middle" 
       dominantBaseline="middle"
-      fontSize="11"
+      fontSize="12"
       fontWeight="bold"
-      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
+      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.8)' }}
     >
       {value}
     </text>
@@ -43,7 +44,7 @@ export const VolumeChart = ({ volumeData }: VolumeChartProps) => {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
-          <BarChart data={volumeData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <BarChart data={volumeData} margin={{ top: 30, right: 30, left: 20, bottom: 5 }}>
             <defs>
               <linearGradient id="colorInseridos" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.9}/>
@@ -84,10 +85,7 @@ export const VolumeChart = ({ volumeData }: VolumeChartProps) => {
               radius={[4, 4, 0, 0]}
               name="totalInseridos"
             >
-              {volumeData.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-              <CustomBarLabel />
+              <LabelList content={CustomLabel} />
             </Bar>
             <Bar 
               dataKey="totalRejeitos" 
@@ -95,10 +93,7 @@ export const VolumeChart = ({ volumeData }: VolumeChartProps) => {
               radius={[4, 4, 0, 0]}
               name="totalRejeitos"
             >
-              {volumeData.map((entry, index) => (
-                <Cell key={`cell-${index}`} />
-              ))}
-              <CustomBarLabel />
+              <LabelList content={CustomLabel} />
             </Bar>
           </BarChart>
         </ResponsiveContainer>

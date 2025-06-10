@@ -9,14 +9,14 @@ interface PeriodDescriptionProps {
 
 export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: PeriodDescriptionProps) => {
   const description = useMemo(() => {
-    const yesterday = new Date('2025-06-08'); // Data corrigida para 08/06/2025 (ontem)
+    const yesterday = new Date('2025-06-09'); // Ontem é 09/06/2025
     
     switch(selectedPeriod) {
       case 'ontem':
-        return 'Dados de 08/06/2025';
+        return 'Dados de 09/06/2025';
       case 'semana':
         const weekAgo = new Date(yesterday);
-        weekAgo.setDate(weekAgo.getDate() - 7);
+        weekAgo.setDate(weekAgo.getDate() - 6); // Últimos 7 dias incluindo ontem
         return `Últimos 7 dias (${weekAgo.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
       case 'mensal':
         const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);

@@ -80,8 +80,8 @@ const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,0
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
-  const [startDate, setStartDate] = useState('2025-06-07');
-  const [endDate, setEndDate] = useState('2025-06-08');
+  const [startDate, setStartDate] = useState('2025-06-08');
+  const [endDate, setEndDate] = useState('2025-06-09');
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
 
@@ -139,7 +139,7 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    const yesterday = new Date('2025-06-08'); // Data corrigida para 08/06/2025 (ontem)
+    const yesterday = new Date('2025-06-09'); // Ontem é 09/06/2025
     
     return processedData.filter(item => {
       const [day, month, year] = item.date.split('/');
@@ -147,15 +147,18 @@ const Index = () => {
       
       switch(selectedPeriod) {
         case 'ontem':
-          return item.date === '08/06/2025';
+          return item.date === '09/06/2025';
         case 'semana':
+          // Últimos 7 dias incluindo ontem (03/06 a 09/06)
           const weekAgo = new Date(yesterday);
-          weekAgo.setDate(weekAgo.getDate() - 7);
+          weekAgo.setDate(weekAgo.getDate() - 6);
           return itemDate >= weekAgo && itemDate <= yesterday;
         case 'mensal':
+          // Do início do mês até ontem (01/06 a 09/06)
           const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
           return itemDate >= monthStart && itemDate <= yesterday;
         case 'anual':
+          // Do início do ano até ontem (01/01 a 09/06)
           const yearStart = new Date(yesterday.getFullYear(), 0, 1);
           return itemDate >= yearStart && itemDate <= yesterday;
         case 'personalizado':
