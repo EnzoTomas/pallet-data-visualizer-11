@@ -19,7 +19,7 @@ export const MainKPICards = ({ aggregatedData }: MainKPICardsProps) => {
       <Card className="p-6 hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-secondary/50 to-secondary/30 border-l-4 border-l-secondary animate-fade-in scroll-animate">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-sm text-secondary-foreground mb-2 font-medium">Aderência Total</div>
+            <div className="text-sm text-secondary-foreground mb-2 font-medium">Eficiência Total</div>
             <div className="text-4xl font-bold text-secondary-foreground transition-all duration-500">
               <CountUp end={aggregatedData.eficiencia} decimals={2} suffix="%" />
             </div>
