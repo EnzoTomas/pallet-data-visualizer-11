@@ -15,3 +15,5 @@ export interface ShareData {
   analiseRejeitos: boolean;
   responsaveisRejeitos: boolean;
 }
+
+export type ShareType = 'dados' | 'imagens' | 'ambos';
