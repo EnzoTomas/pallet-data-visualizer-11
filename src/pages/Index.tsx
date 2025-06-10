@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -80,10 +81,24 @@ const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,0
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
-  const [startDate, setStartDate] = useState('2025-06-09');
-  const [endDate, setEndDate] = useState('2025-06-09');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
+
+  // Inicializar as datas padrão baseadas na data atual
+  useEffect(() => {
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    
+    const formatDate = (date: Date) => {
+      return date.toISOString().split('T')[0];
+    };
+    
+    setStartDate(formatDate(yesterday));
+    setEndDate(formatDate(yesterday));
+  }, []);
 
   // Add scroll animation effect
   useEffect(() => {
@@ -139,26 +154,38 @@ const Index = () => {
   }, [csvData]);
 
   const filteredData = useMemo(() => {
-    const yesterday = new Date('2025-06-09'); // Ontem é 09/06/2025
+    // 1. Pega a data de hoje
+    const today = new Date();
+    
+    // 2. Cria uma nova data para "ontem" e subtrai um dia
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    // 3. Formata a data de ontem para o formato DD/MM/YYYY para comparar com os dados
+    const day = String(yesterday.getDate()).padStart(2, '0');
+    const month = String(yesterday.getMonth() + 1).padStart(2, '0'); // Meses em JS são de 0 a 11
+    const year = yesterday.getFullYear();
+    const formattedYesterday = `${day}/${month}/${year}`;
     
     return processedData.filter(item => {
-      const [day, month, year] = item.date.split('/');
-      const itemDate = new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+      const [itemDay, itemMonth, itemYear] = item.date.split('/');
+      const itemDate = new Date(`${itemYear}-${itemMonth.padStart(2, '0')}-${itemDay.padStart(2, '0')}`);
       
       switch(selectedPeriod) {
         case 'ontem':
-          return item.date === '09/06/2025';
+          // 4. Compara com a data formatada de ontem
+          return item.date === formattedYesterday;
         case 'semana':
-          // Últimos 7 dias incluindo ontem (03/06 a 09/06)
+          // Últimos 7 dias incluindo ontem
           const weekAgo = new Date(yesterday);
           weekAgo.setDate(weekAgo.getDate() - 6);
           return itemDate >= weekAgo && itemDate <= yesterday;
         case 'mensal':
-          // Do início do mês até ontem (01/06 a 09/06)
+          // Do início do mês até ontem
           const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
           return itemDate >= monthStart && itemDate <= yesterday;
         case 'anual':
-          // Do início do ano até ontem (01/01 a 09/06)
+          // Do início do ano até ontem
           const yearStart = new Date(yesterday.getFullYear(), 0, 1);
           return itemDate >= yearStart && itemDate <= yesterday;
         case 'personalizado':
