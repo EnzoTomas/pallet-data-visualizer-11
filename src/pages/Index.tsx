@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +13,8 @@ import { useAggregatedData } from "@/hooks/useAggregatedData";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 import { useTrendData } from "@/hooks/useTrendData";
 import { formatDateForInput, getYesterday } from "@/utils/dateUtils";
+import { DownloadButton } from "@/components/DownloadButton";
+import { ShareButton } from "@/components/ShareButton";
 
 const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
@@ -118,9 +119,13 @@ const Index = () => {
               Status Paletização
             </h1>
           </div>
-          <div className="flex items-center space-x-2">
-            <Activity className="h-6 w-6 text-primary animate-pulse" />
-            <span className="text-sm text-primary font-medium">Sistema Online</span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Activity className="h-6 w-6 text-primary animate-pulse" />
+              <span className="text-sm text-primary font-medium">Sistema Online</span>
+            </div>
+            <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
+            <ShareButton aggregatedData={aggregatedData} />
           </div>
         </div>
 
