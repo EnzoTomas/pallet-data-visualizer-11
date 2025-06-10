@@ -1,5 +1,3 @@
-
-
 import { useState, useMemo, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -267,7 +265,6 @@ const Index = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Status Paletização
             </h1>
-            <p className="text-muted-foreground mt-2">Dashboard de monitoramento em tempo real</p>
           </div>
           <div className="flex items-center space-x-2">
             <Activity className="h-6 w-6 text-primary animate-pulse" />
@@ -324,3 +321,5 @@ const Index = () => {
 };
 
 export default Index;
+
+}
