@@ -106,12 +106,23 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
 
       const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
-        scale: 3,
+        scale: 4,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         logging: false,
         imageTimeout: 30000,
-        removeContainer: true
+        removeContainer: true,
+        foreignObjectRendering: false,
+        ignoreElements: (element) => {
+          return element.tagName === 'SCRIPT' || element.tagName === 'STYLE';
+        },
+        onclone: (clonedDoc) => {
+          // Melhorar contraste e cores no documento clonado
+          const clonedElement = clonedDoc.querySelector('.max-w-7xl');
+          if (clonedElement) {
+            (clonedElement as HTMLElement).style.filter = 'contrast(1.1) brightness(1.05)';
+          }
+        }
       });
 
       const link = document.createElement('a');
@@ -142,12 +153,23 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
 
       const canvas = await html2canvas(element, {
         backgroundColor: '#ffffff',
-        scale: 2,
+        scale: 3,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         logging: false,
         imageTimeout: 30000,
-        removeContainer: true
+        removeContainer: true,
+        foreignObjectRendering: false,
+        ignoreElements: (element) => {
+          return element.tagName === 'SCRIPT' || element.tagName === 'STYLE';
+        },
+        onclone: (clonedDoc) => {
+          // Melhorar contraste e cores no documento clonado
+          const clonedElement = clonedDoc.querySelector('.max-w-7xl');
+          if (clonedElement) {
+            (clonedElement as HTMLElement).style.filter = 'contrast(1.1) brightness(1.05)';
+          }
+        }
       });
 
       const imgData = canvas.toDataURL('image/png', 1.0);
