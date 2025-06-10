@@ -45,10 +45,6 @@ export const MainKPICards = ({ aggregatedData }: MainKPICardsProps) => {
             <div className="text-4xl font-bold text-primary transition-all duration-500">
               <CountUp end={aggregatedData.totalInseridos} />
             </div>
-            <div className="flex items-center mt-2">
-              <TrendingUp className="h-4 w-4 text-primary mr-1" />
-              <span className="text-xs text-muted-foreground">+12% esta semana</span>
-            </div>
           </div>
           <div className="h-16 w-16 bg-primary/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
             <Calendar className="h-8 w-8 text-primary" />
@@ -62,10 +58,6 @@ export const MainKPICards = ({ aggregatedData }: MainKPICardsProps) => {
             <div className="text-sm text-destructive mb-2 font-medium">Rejeitados Total</div>
             <div className="text-4xl font-bold text-destructive transition-all duration-500">
               <CountUp end={aggregatedData.totalRejeitos} />
-            </div>
-            <div className="flex items-center mt-2">
-              <TrendingDown className="h-4 w-4 text-primary mr-1" />
-              <span className="text-xs text-muted-foreground">-5% esta semana</span>
             </div>
           </div>
           <div className="h-16 w-16 bg-destructive/20 rounded-full flex items-center justify-center hover:rotate-12 transition-transform duration-300">
