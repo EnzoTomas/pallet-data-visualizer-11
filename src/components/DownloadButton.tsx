@@ -120,23 +120,32 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
           // Melhorar contraste e cores no documento clonado
           const clonedElement = clonedDoc.querySelector('.max-w-7xl');
           if (clonedElement) {
-            (clonedElement as HTMLElement).style.filter = 'contrast(1.3) brightness(1.2) saturate(1.1)';
+            (clonedElement as HTMLElement).style.filter = 'contrast(1.8) brightness(1.4) saturate(1.3)';
             (clonedElement as HTMLElement).style.backgroundColor = '#ffffff';
           }
           
-          // Garantir que todos os textos tenham cor escura
+          // Garantir que todos os textos tenham cor escura e backgrounds claros
           const allTextElements = clonedDoc.querySelectorAll('*');
           allTextElements.forEach((el) => {
             const element = el as HTMLElement;
             const styles = window.getComputedStyle(element);
+            
+            // Forçar cores mais escuras para textos
             if (styles.color && (styles.color.includes('rgb(') || styles.color.includes('rgba('))) {
               const rgb = styles.color.match(/\d+/g);
               if (rgb && rgb.length >= 3) {
                 const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-                if (brightness > 180) { // Se a cor for muito clara, escurecer
-                  element.style.color = '#1f2937';
+                if (brightness > 120) { // Limiar menor para escurecer mais textos
+                  element.style.color = '#111827 !important';
+                  element.style.setProperty('color', '#111827', 'important');
                 }
               }
+            }
+            
+            // Garantir backgrounds claros para cards e elementos importantes
+            if (element.classList.contains('bg-card') || element.classList.contains('bg-background')) {
+              element.style.backgroundColor = '#ffffff !important';
+              element.style.setProperty('background-color', '#ffffff', 'important');
             }
           });
         }
@@ -184,23 +193,32 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
           // Melhorar contraste e cores no documento clonado
           const clonedElement = clonedDoc.querySelector('.max-w-7xl');
           if (clonedElement) {
-            (clonedElement as HTMLElement).style.filter = 'contrast(1.3) brightness(1.2) saturate(1.1)';
+            (clonedElement as HTMLElement).style.filter = 'contrast(1.8) brightness(1.4) saturate(1.3)';
             (clonedElement as HTMLElement).style.backgroundColor = '#ffffff';
           }
           
-          // Garantir que todos os textos tenham cor escura
+          // Garantir que todos os textos tenham cor escura e backgrounds claros
           const allTextElements = clonedDoc.querySelectorAll('*');
           allTextElements.forEach((el) => {
             const element = el as HTMLElement;
             const styles = window.getComputedStyle(element);
+            
+            // Forçar cores mais escuras para textos
             if (styles.color && (styles.color.includes('rgb(') || styles.color.includes('rgba('))) {
               const rgb = styles.color.match(/\d+/g);
               if (rgb && rgb.length >= 3) {
                 const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
-                if (brightness > 180) { // Se a cor for muito clara, escurecer
-                  element.style.color = '#1f2937';
+                if (brightness > 120) { // Limiar menor para escurecer mais textos
+                  element.style.color = '#111827 !important';
+                  element.style.setProperty('color', '#111827', 'important');
                 }
               }
+            }
+            
+            // Garantir backgrounds claros para cards e elementos importantes
+            if (element.classList.contains('bg-card') || element.classList.contains('bg-background')) {
+              element.style.backgroundColor = '#ffffff !important';
+              element.style.setProperty('background-color', '#ffffff', 'important');
             }
           });
         }
