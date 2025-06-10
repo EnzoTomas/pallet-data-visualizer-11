@@ -99,10 +99,10 @@ export const DownloadButton = ({ filteredData, aggregatedData }: DownloadButtonP
       onClick={handleDownload}
       variant="outline"
       size="sm"
-      className="flex items-center gap-2"
+      className="flex items-center gap-1 px-2 text-xs"
     >
-      <Download className="h-4 w-4" />
-      Download XLSX
+      <Download className="h-3 w-3" />
+      <span className="hidden sm:inline">Download XLSX</span>
     </Button>
   );
 };
