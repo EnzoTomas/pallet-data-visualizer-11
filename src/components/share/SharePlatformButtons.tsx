@@ -2,13 +2,12 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ShareType, ShareData } from '@/types/share';
+import { ShareData } from '@/types/share';
 import { AggregatedData } from "@/hooks/useAggregatedData";
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
-import { generateShareText, generateImageShareText, generateBothShareText } from '@/utils/shareUtils';
+import { generateShareText } from '@/utils/shareUtils';
 
 interface SharePlatformButtonsProps {
-  shareType: ShareType;
   shareData: ShareData;
   aggregatedData: AggregatedData;
   filteredData: ProcessedDataItem[];
@@ -16,7 +15,6 @@ interface SharePlatformButtonsProps {
 }
 
 export const SharePlatformButtons = ({
-  shareType,
   shareData,
   aggregatedData,
   filteredData,
@@ -25,28 +23,10 @@ export const SharePlatformButtons = ({
   const { toast } = useToast();
 
   const getShareContent = () => {
-    switch (shareType) {
-      case 'dados':
-        return generateShareText(aggregatedData, shareData, filteredData);
-      case 'imagens':
-        return generateImageShareText();
-      case 'ambos':
-        return generateBothShareText(aggregatedData, shareData, filteredData);
-      default:
-        return generateShareText(aggregatedData, shareData, filteredData);
-    }
+    return generateShareText(aggregatedData, shareData, filteredData);
   };
 
   const shareToWhatsApp = async () => {
-    if (shareType === 'imagens' || shareType === 'ambos') {
-      toast({
-        title: "Compartilhamento de imagem",
-        description: "Para compartilhar imagens, tire uma captura de tela do dashboard e envie manualmente no WhatsApp.",
-      });
-      onClose();
-      return;
-    }
-
     const text = getShareContent();
     const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
@@ -58,15 +38,6 @@ export const SharePlatformButtons = ({
   };
 
   const shareToGmail = async () => {
-    if (shareType === 'imagens' || shareType === 'ambos') {
-      toast({
-        title: "Compartilhamento de imagem",
-        description: "Para compartilhar imagens, tire uma captura de tela do dashboard e anexe ao email.",
-      });
-      onClose();
-      return;
-    }
-
     const text = getShareContent();
     const subject = "Status Paletização - Relatório";
     const url = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(text)}`;
@@ -79,15 +50,6 @@ export const SharePlatformButtons = ({
   };
 
   const copyToClipboard = async () => {
-    if (shareType === 'imagens') {
-      toast({
-        title: "Compartilhamento de imagem",
-        description: "Para compartilhar imagens, tire uma captura de tela do dashboard.",
-      });
-      onClose();
-      return;
-    }
-
     const text = getShareContent();
     navigator.clipboard.writeText(text).then(() => {
       onClose();
@@ -99,15 +61,6 @@ export const SharePlatformButtons = ({
   };
 
   const shareToTelegram = async () => {
-    if (shareType === 'imagens' || shareType === 'ambos') {
-      toast({
-        title: "Compartilhamento de imagem",
-        description: "Para compartilhar imagens, tire uma captura de tela do dashboard e envie manualmente no Telegram.",
-      });
-      onClose();
-      return;
-    }
-
     const text = getShareContent();
     const url = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');

@@ -90,12 +90,31 @@ export const getResponsibleAnalysis = (filteredData: ProcessedDataItem[]): strin
   return analysis;
 };
 
+export const getDateRange = (filteredData: ProcessedDataItem[]): string => {
+  if (!filteredData.length) return '';
+  
+  const dates = filteredData.map(item => item.date).sort();
+  const firstDate = dates[0];
+  const lastDate = dates[dates.length - 1];
+  
+  if (firstDate === lastDate) {
+    return `Referente à data ${firstDate}`;
+  }
+  
+  return `Referente a(s) data(s) ${firstDate} até ${lastDate}`;
+};
+
 export const generateShareText = (
   aggregatedData: AggregatedData,
   shareData: ShareData,
   filteredData: ProcessedDataItem[]
 ): string => {
   let text = "📊 *Status Paletização*\n\n";
+  
+  const dateRange = getDateRange(filteredData);
+  if (dateRange) {
+    text += `${dateRange}\n\n`;
+  }
   
   if (shareData.eficiencia) {
     text += `🎯 Eficiência Total: ${aggregatedData.eficiencia.toFixed(2)}%\n`;
@@ -131,16 +150,4 @@ export const generateShareText = (
   }
   
   return text;
-};
-
-export const generateImageShareText = (): string => {
-  return `📊 *Dashboard Paletização*\n\n🖼️ Confira os gráficos e dados no dashboard anexo`;
-};
-
-export const generateBothShareText = (
-  aggregatedData: AggregatedData,
-  shareData: ShareData,
-  filteredData: ProcessedDataItem[]
-): string => {
-  return `${generateShareText(aggregatedData, shareData, filteredData)}\n\n🖼️ *Gráficos e visualizações em anexo*`;
 };

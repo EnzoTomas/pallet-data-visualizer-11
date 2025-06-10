@@ -3,14 +3,12 @@ import React, { useState } from 'react';
 import { Share } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ShareButtonProps, ShareData, ShareType } from '@/types/share';
-import { ShareTypeSelector } from '@/components/share/ShareTypeSelector';
+import { ShareButtonProps, ShareData } from '@/types/share';
 import { ShareDataSelector } from '@/components/share/ShareDataSelector';
 import { SharePlatformButtons } from '@/components/share/SharePlatformButtons';
 
 export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [shareType, setShareType] = useState<ShareType>('dados');
   const [shareData, setShareData] = useState<ShareData>({
     eficiencia: true,
     inseridos: true,
@@ -52,21 +50,13 @@ export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonPr
         </DialogHeader>
         
         <div className="space-y-4">
-          <ShareTypeSelector 
-            shareType={shareType} 
-            onShareTypeChange={setShareType} 
+          <ShareDataSelector
+            shareData={shareData}
+            onShareDataChange={handleCheckboxChange}
+            onSelectAll={selectAll}
           />
 
-          {shareType !== 'imagens' && (
-            <ShareDataSelector
-              shareData={shareData}
-              onShareDataChange={handleCheckboxChange}
-              onSelectAll={selectAll}
-            />
-          )}
-
           <SharePlatformButtons
-            shareType={shareType}
             shareData={shareData}
             aggregatedData={aggregatedData}
             filteredData={filteredData}
