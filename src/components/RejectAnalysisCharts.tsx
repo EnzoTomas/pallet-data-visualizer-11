@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, User, Wrench, Target, Zap } from 'lucide-react';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, Legend } from 'recharts';
+import { AlertTriangle, User, Wrench, Target, Zap, PieChart as PieChartIcon } from 'lucide-react';
 
 interface RejectAnalysisChartsProps {
   data: any[];
@@ -41,6 +42,18 @@ export const RejectAnalysisCharts = ({
     item.percentage = totalRejects > 0 ? item.value / totalRejects * 100 : 0;
   });
 
+  // Cores para o gráfico de pizza
+  const pieColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
+
+  // Dados para o gráfico de pizza
+  const pieData = rejectChartData.map((item, index) => ({
+    name: item.name,
+    fullName: item.fullName,
+    value: item.value,
+    percentage: item.percentage,
+    color: pieColors[index % pieColors.length]
+  }));
+
   const colors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899'];
 
   const getRejectIcon = (name: string) => {
@@ -53,8 +66,22 @@ export const RejectAnalysisCharts = ({
     return <AlertTriangle className="h-5 w-5" />;
   };
 
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
+          <p className="font-semibold text-gray-800">{data.fullName}</p>
+          <p className="text-sm text-gray-600">Quantidade: {data.value}</p>
+          <p className="text-sm text-gray-600">Percentual: {data.percentage.toFixed(1)}%</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="grid grid-cols-1 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Dashboard de Rejeitos */}
       <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-red-50/30 to-red-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
@@ -118,6 +145,74 @@ export const RejectAnalysisCharts = ({
             <div className="text-center py-8 text-gray-500">
               <AlertTriangle className="h-12 w-12 mx-auto mb-3 text-gray-300" />
               <p>Nenhum rejeito encontrado no período selecionado</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Gráfico de Pizza dos Rejeitos */}
+      <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-blue-50/30 to-blue-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+        <CardHeader className="pb-6 relative">
+          <div className="flex items-center space-x-3">
+            <div className="p-3 bg-blue-500/10 rounded-xl">
+              <PieChartIcon className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-bold text-gray-800">
+                Distribuição de Rejeitos
+              </CardTitle>
+              <p className="text-sm text-gray-600 mt-1">Visualização proporcional</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {pieData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={400}>
+              <PieChart>
+                <defs>
+                  {pieData.map((entry, index) => (
+                    <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={entry.color} stopOpacity={0.9}/>
+                      <stop offset="95%" stopColor={entry.color} stopOpacity={0.6}/>
+                    </linearGradient>
+                  ))}
+                </defs>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ percentage }) => `${percentage.toFixed(1)}%`}
+                  outerRadius={120}
+                  fill="#8884d8"
+                  dataKey="value"
+                  stroke="#fff"
+                  strokeWidth={2}
+                >
+                  {pieData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={`url(#gradient-${index})`}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  formatter={(value, entry: any) => (
+                    <span style={{ color: entry.color, fontSize: '12px' }}>
+                      {value} ({entry.payload.value})
+                    </span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="text-center py-8 text-gray-500 h-[400px] flex flex-col items-center justify-center">
+              <PieChartIcon className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+              <p>Nenhum dado disponível para exibir</p>
             </div>
           )}
         </CardContent>
