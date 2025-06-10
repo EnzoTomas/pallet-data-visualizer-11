@@ -1,4 +1,5 @@
-import { useState, useMemo, useEffect } from 'react';
+
+import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { PeriodSelector } from "@/components/PeriodSelector";
@@ -7,6 +8,12 @@ import { CircularProgress } from "@/components/CircularProgress";
 import { RejectAnalysisCharts } from "@/components/RejectAnalysisCharts";
 import { TrendChart } from "@/components/TrendChart";
 import { VolumeChart } from "@/components/VolumeChart";
+import { useProcessedData } from "@/hooks/useProcessedData";
+import { useFilteredData } from "@/hooks/useFilteredData";
+import { useAggregatedData } from "@/hooks/useAggregatedData";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
+import { useTrendData } from "@/hooks/useTrendData";
+import { formatDateForInput, getYesterday } from "@/utils/dateUtils";
 
 const rawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
@@ -85,176 +92,21 @@ const Index = () => {
   const [csvData, setCsvData] = useState(rawData);
   const { toast } = useToast();
 
-  // AJUSTE 1: Inicializar as datas padrão dinamicamente para "ontem"
+  // Initialize default dates for "ontem"
   useEffect(() => {
-    const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-    
-    // Função para formatar a data para o formato 'YYYY-MM-DD' que o input type="date" usa
-    const formatDateForInput = (date: Date) => {
-      return date.toISOString().split('T')[0];
-    };
-    
+    const yesterday = getYesterday();
     setStartDate(formatDateForInput(yesterday));
     setEndDate(formatDateForInput(yesterday));
   }, []);
 
-  // Efeito de animação de scroll (sem alterações)
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollElements = document.querySelectorAll('.scroll-animate');
-      scrollElements.forEach((element) => {
-        const elementTop = element.getBoundingClientRect().top;
-        const elementVisible = 150;
-        
-        if (elementTop < window.innerHeight - elementVisible) {
-          element.classList.add('animate-fade-in');
-        }
-      });
-    };
+  // Use custom hooks for data processing
+  const processedData = useProcessedData(csvData);
+  const filteredData = useFilteredData(processedData, selectedPeriod, startDate, endDate);
+  const aggregatedData = useAggregatedData(filteredData);
+  const trendData = useTrendData(filteredData);
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Run on mount
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const processedData = useMemo(() => {
-    return csvData.trim().split('\n').map(line => {
-      const values = line.split('\t');
-      return {
-        date: values[0],
-        totalInseridos: parseInt(values[1]) || 0,
-        totalRejeitos: parseInt(values[2]) || 0,
-        eficiencia: parseFloat(values[3]?.replace('%', '').replace(',', '.')) || 0,
-        erroLeituraEtiqueta: parseInt(values[4]) || 0,
-        madeiraPesPallet: parseInt(values[5]) || 0,
-        areaLivrePes: parseInt(values[6]) || 0,
-        erroContornoAltura: parseInt(values[7]) || 0,
-        erroContornoDireita: parseInt(values[8]) || 0,
-        erroContornoEsquerda: parseInt(values[9]) || 0,
-        erroContornoFrente: parseInt(values[10]) || 0,
-        erroContornoTraseira: parseInt(values[11]) || 0,
-        falhaSensor: parseInt(values[12]) || 0,
-        pallet: parseInt(values[13]) || 0,
-        rn: parseInt(values[14]) || 0,
-        inseridos1T: parseInt(values[15]) || 0,
-        rejeitos1T: parseInt(values[16]) || 0,
-        aderencia1T: parseFloat(values[17]?.replace('%', '').replace(',', '.')) || 0,
-        inseridos2T: parseInt(values[18]) || 0,
-        rejeitos2T: parseInt(values[19]) || 0,
-        aderencia2T: parseFloat(values[20]?.replace('%', '').replace(',', '.')) || 0,
-        inseridos3T: parseInt(values[21]) || 0,
-        rejeitos3T: parseInt(values[22]) || 0,
-        aderencia3T: parseFloat(values[23]?.replace('%', '').replace(',', '.')) || 0,
-        total: function() { return this.totalInseridos + this.totalRejeitos; }
-      };
-    }).filter(item => item.total() > 0);
-  }, [csvData]);
-
-  // AJUSTE 2: Lógica de filtragem totalmente dinâmica e com correção de fuso horário
-  const filteredData = useMemo(() => {
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    // Formata 'ontem' para string 'DD/MM/YYYY' para comparação direta
-    const formatToDMY = (date: Date) => {
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses em JS são de 0 a 11
-      const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
-    };
-    const formattedYesterday = formatToDMY(yesterday);
-    
-    return processedData.filter(item => {
-      const [itemDay, itemMonth, itemYear] = item.date.split('/');
-      
-      // CORREÇÃO DE FUSO HORÁRIO (TIMEZONE)
-      const itemDate = new Date(`${itemYear}-${itemMonth.padStart(2, '0')}-${itemDay.padStart(2, '0')}T00:00:00`);
-      
-      switch(selectedPeriod) {
-        case 'ontem':
-          return item.date === formattedYesterday;
-        
-        case 'semana':
-          const weekAgo = new Date(yesterday);
-          weekAgo.setHours(0, 0, 0, 0); // Zera a hora para uma comparação segura
-          weekAgo.setDate(weekAgo.getDate() - 6);
-          return itemDate >= weekAgo && itemDate <= yesterday;
-        
-        case 'mensal':
-          const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
-          return itemDate >= monthStart && itemDate <= yesterday;
-        
-        case 'anual':
-          const yearStart = new Date(yesterday.getFullYear(), 0, 1);
-          return itemDate >= yearStart && itemDate <= yesterday;
-        
-        case 'personalizado':
-          if (!startDate || !endDate) return false; // Não filtra se as datas não estiverem setadas
-          
-          // CORREÇÃO DE FUSO HORÁRIO (TIMEZONE)
-          const start = new Date(startDate + 'T00:00:00');
-          const end = new Date(endDate + 'T23:59:59'); // Usa o fim do dia para incluir a data final completa
-          return itemDate >= start && itemDate <= end;
-        
-        default:
-          return true;
-      }
-    });
-  }, [processedData, selectedPeriod, startDate, endDate]);
-
-  const aggregatedData = useMemo(() => {
-    if (filteredData.length === 0) {
-      return {
-        totalInseridos: 0, totalRejeitos: 0, eficiencia: 0,
-        inseridos1T: 0, rejeitos1T: 0, aderencia1T: 0,
-        inseridos2T: 0, rejeitos2T: 0, aderencia2T: 0,
-        inseridos3T: 0, rejeitos3T: 0, aderencia3T: 0
-      };
-    }
-
-    const totals = filteredData.reduce((acc, curr) => ({
-      totalInseridos: acc.totalInseridos + curr.totalInseridos,
-      totalRejeitos: acc.totalRejeitos + curr.totalRejeitos,
-      inseridos1T: acc.inseridos1T + curr.inseridos1T,
-      rejeitos1T: acc.rejeitos1T + curr.rejeitos1T,
-      inseridos2T: acc.inseridos2T + curr.inseridos2T,
-      rejeitos2T: acc.rejeitos2T + curr.rejeitos2T,
-      inseridos3T: acc.inseridos3T + curr.inseridos3T,
-      rejeitos3T: acc.rejeitos3T + curr.rejeitos3T,
-    }), {
-      totalInseridos: 0, totalRejeitos: 0,
-      inseridos1T: 0, rejeitos1T: 0,
-      inseridos2T: 0, rejeitos2T: 0,
-      inseridos3T: 0, rejeitos3T: 0,
-    });
-
-    const total = totals.totalInseridos + totals.totalRejeitos;
-    const eficiencia = total > 0 ? (totals.totalInseridos / total) * 100 : 0;
-
-    const total1T = totals.inseridos1T + totals.rejeitos1T;
-    const aderencia1T = total1T > 0 ? (totals.inseridos1T / total1T) * 100 : 0;
-
-    const total2T = totals.inseridos2T + totals.rejeitos2T;
-    const aderencia2T = total2T > 0 ? (totals.inseridos2T / total2T) * 100 : 0;
-
-    const total3T = totals.inseridos3T + totals.rejeitos3T;
-    const aderencia3T = total3T > 0 ? (totals.inseridos3T / total3T) * 100 : 0;
-
-    return { ...totals, eficiencia, aderencia1T, aderencia2T, aderencia3T };
-  }, [filteredData]);
-
-  const trendData = useMemo(() => {
-    return filteredData.slice(-30).map(item => ({
-      ...item,
-      meta: 75,
-      zona_critica: 50,
-      diferenca_meta: item.eficiencia - 75
-    }));
-  }, [filteredData]);
+  // Setup scroll animation
+  useScrollAnimation();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
