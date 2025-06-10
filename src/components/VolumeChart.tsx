@@ -1,6 +1,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
 import { Activity } from 'lucide-react';
 
 interface VolumeData {
@@ -12,6 +12,25 @@ interface VolumeData {
 interface VolumeChartProps {
   volumeData: VolumeData[];
 }
+
+const CustomBarLabel = ({ x, y, width, height, value }: any) => {
+  if (value === 0) return null;
+  
+  return (
+    <text 
+      x={x + width / 2} 
+      y={y + height / 2} 
+      fill="white" 
+      textAnchor="middle" 
+      dominantBaseline="middle"
+      fontSize="11"
+      fontWeight="bold"
+      style={{ textShadow: '1px 1px 2px rgba(0,0,0,0.5)' }}
+    >
+      {value}
+    </text>
+  );
+};
 
 export const VolumeChart = ({ volumeData }: VolumeChartProps) => {
   return (
@@ -64,13 +83,23 @@ export const VolumeChart = ({ volumeData }: VolumeChartProps) => {
               fill="url(#colorInseridos)" 
               radius={[4, 4, 0, 0]}
               name="totalInseridos"
-            />
+            >
+              {volumeData.map((entry, index) => (
+                <Cell key={`cell-${index}`} />
+              ))}
+              <CustomBarLabel />
+            </Bar>
             <Bar 
               dataKey="totalRejeitos" 
               fill="url(#colorRejeitos)" 
               radius={[4, 4, 0, 0]}
               name="totalRejeitos"
-            />
+            >
+              {volumeData.map((entry, index) => (
+                <Cell key={`cell-${index}`} />
+              ))}
+              <CustomBarLabel />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
