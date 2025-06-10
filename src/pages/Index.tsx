@@ -125,7 +125,7 @@ const Index = () => {
               <span className="text-sm text-primary font-medium">Sistema Online</span>
             </div>
             <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
-            <ShareButton aggregatedData={aggregatedData} />
+            <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
           </div>
         </div>
 
