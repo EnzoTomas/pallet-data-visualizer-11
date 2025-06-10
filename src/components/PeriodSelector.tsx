@@ -19,6 +19,24 @@ export const PeriodSelector = ({
   onStartDateChange,
   onEndDateChange
 }: PeriodSelectorProps) => {
+  /**
+   * Formata uma string de data 'YYYY-MM-DD' para 'DD/MM/YYYY'
+   * corrigindo o problema de fuso horário para exibição.
+   */
+  const formatDateForDisplay = (dateString: string) => {
+    // Retorna um placeholder se a data for nula ou vazia
+    if (!dateString) {
+      return '...';
+    }
+
+    // A MÁGICA ESTÁ AQUI: Adiciona 'T00:00:00' para que a data
+    // seja criada no fuso horário local e não em UTC.
+    const date = new Date(dateString + 'T00:00:00');
+    
+    // Formata a data para o padrão brasileiro (DD/MM/YYYY)
+    return date.toLocaleDateString('pt-BR');
+  };
+
   return (
     <div className="bg-card/80 backdrop-blur-sm rounded-xl p-6 shadow-lg border border-card/20 animate-fade-in">
       <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
@@ -70,7 +88,8 @@ export const PeriodSelector = ({
         <PeriodDescription 
           selectedPeriod={selectedPeriod} 
           startDate={startDate} 
-          endDate={endDate} 
+          endDate={endDate}
+          formatDateForDisplay={formatDateForDisplay}
         />
       </div>
     </div>

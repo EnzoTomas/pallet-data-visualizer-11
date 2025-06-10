@@ -1,49 +1,66 @@
 
-import { useMemo } from 'react';
-
 interface PeriodDescriptionProps {
   selectedPeriod: string;
   startDate: string;
   endDate: string;
+  formatDateForDisplay?: (dateString: string) => string;
 }
 
-export const PeriodDescription = ({ selectedPeriod, startDate, endDate }: PeriodDescriptionProps) => {
-  const description = useMemo(() => {
-    // 1. Pega a data de hoje
+export const PeriodDescription = ({ 
+  selectedPeriod, 
+  startDate, 
+  endDate,
+  formatDateForDisplay 
+}: PeriodDescriptionProps) => {
+  // Função auxiliar interna caso não seja passada
+  const defaultFormatDateForDisplay = (dateString: string) => {
+    if (!dateString) return '...';
+    const date = new Date(dateString + 'T00:00:00');
+    return date.toLocaleDateString('pt-BR');
+  };
+
+  const formatDate = formatDateForDisplay || defaultFormatDateForDisplay;
+
+  const getDescription = () => {
     const today = new Date();
-    
-    // 2. Cria uma nova data para "ontem" e subtrai um dia
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    
-    switch(selectedPeriod) {
+
+    const formatToDMY = (date: Date) => {
+      const day = String(date.getDate()).padStart(2, '0');
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+
+    switch (selectedPeriod) {
       case 'ontem':
-        return `Dados de ${yesterday.toLocaleDateString('pt-BR')}`;
+        return `📅 Dados de ontem (${formatToDMY(yesterday)})`;
+      
       case 'semana':
         const weekAgo = new Date(yesterday);
-        weekAgo.setDate(weekAgo.getDate() - 6); // Últimos 7 dias incluindo ontem
-        return `Últimos 7 dias (${weekAgo.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
+        weekAgo.setDate(weekAgo.getDate() - 6);
+        return `📅 Últimos 7 dias (${formatToDMY(weekAgo)} - ${formatToDMY(yesterday)})`;
+      
       case 'mensal':
         const monthStart = new Date(yesterday.getFullYear(), yesterday.getMonth(), 1);
-        return `Mês atual (${monthStart.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
+        return `📅 Mês atual até ontem (${formatToDMY(monthStart)} - ${formatToDMY(yesterday)})`;
+      
       case 'anual':
         const yearStart = new Date(yesterday.getFullYear(), 0, 1);
-        return `Ano atual (${yearStart.toLocaleDateString('pt-BR')} - ${yesterday.toLocaleDateString('pt-BR')})`;
+        return `📅 Ano atual até ontem (${formatToDMY(yearStart)} - ${formatToDMY(yesterday)})`;
+      
       case 'personalizado':
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        return `Período personalizado (${start.toLocaleDateString('pt-BR')} - ${end.toLocaleDateString('pt-BR')})`;
+        return `📅 Período personalizado (${formatDate(startDate)} - ${formatDate(endDate)})`;
+      
       default:
-        return '';
+        return '📅 Selecione um período';
     }
-  }, [selectedPeriod, startDate, endDate]);
-
-  if (!description) return null;
+  };
 
   return (
-    <div className="text-sm text-muted-foreground bg-primary/10 px-3 py-2 rounded-lg border border-primary/20 animate-fade-in">
-      <span className="font-medium text-primary">📅 </span>
-      {description}
-    </div>
+    <p className="text-muted-foreground text-sm bg-muted/20 px-4 py-2 rounded-lg border-l-4 border-primary/30">
+      {getDescription()}
+    </p>
   );
 };
