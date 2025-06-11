@@ -96,9 +96,9 @@ export const getHighQualityCanvasConfig = () => ({
           // Aumenta contraste, brilho e saturação
           element.style.filter = 'contrast(1.5) brightness(1.2) saturate(1.4)';
           element.style.backgroundColor = '#ffffff';
-          // Força anti-aliasing
-          element.style.webkitFontSmoothing = 'antialiased';
-          element.style.fontSmooth = 'always';
+          // Força anti-aliasing usando setProperty (correção do erro TypeScript)
+          element.style.setProperty('-webkit-font-smoothing', 'antialiased');
+          element.style.setProperty('font-smooth', 'always');
           // Melhora a renderização de texto
           element.style.textRendering = 'optimizeLegibility';
         }
@@ -115,7 +115,6 @@ export const getHighQualityCanvasConfig = () => ({
             if (rgb && rgb.length >= 3) {
               const brightness = (parseInt(rgb[0]) * 299 + parseInt(rgb[1]) * 587 + parseInt(rgb[2]) * 114) / 1000;
               if (brightness > 100) {
-                element.style.color = '#000000 !important';
                 element.style.setProperty('color', '#000000', 'important');
               }
             }
@@ -125,13 +124,11 @@ export const getHighQualityCanvasConfig = () => ({
           if (element.classList.contains('bg-card') || 
               element.classList.contains('bg-background') ||
               element.classList.contains('bg-white')) {
-            element.style.backgroundColor = '#ffffff !important';
             element.style.setProperty('background-color', '#ffffff', 'important');
           }
           
           // Melhora a renderização de bordas
           if (computedStyle.borderColor) {
-            element.style.borderColor = '#e5e7eb !important';
             element.style.setProperty('border-color', '#e5e7eb', 'important');
           }
         });
