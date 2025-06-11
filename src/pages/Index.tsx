@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -122,14 +121,12 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-start animate-slide-in-right">
-          <div className="flex items-start gap-2">
+        <div className="flex justify-between items-center animate-slide-in-right">
+          <div className="flex items-center gap-2">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Status Paletização
             </h1>
-            <div className="mt-1">
-              <PalletRobot />
-            </div>
+            <PalletRobot />
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
