@@ -1,24 +1,18 @@
 
 import React from 'react';
 import { RobotAnimations } from './robot/RobotAnimations';
-import { RobotBase } from './robot/RobotBase';
-import { RobotBody } from './robot/RobotBody';
-import { RobotArms } from './robot/RobotArms';
-import { RobotGripper } from './robot/RobotGripper';
-import { AnimatedBoxes } from './robot/AnimatedBoxes';
 import { Pallet } from './robot/Pallet';
+import { Robot } from './robot/Robot';
+import { AnimatedBox } from './robot/AnimatedBox';
 import { WorkParticles } from './robot/WorkParticles';
 
 export const PalletRobot = () => {
   return (
-    <div className="relative w-20 h-20 mx-4">
+    <div className="relative w-48 h-48 mx-auto mt-10">
       <RobotAnimations />
-      <RobotBase />
-      <RobotBody />
-      <RobotArms />
-      <RobotGripper />
-      <AnimatedBoxes />
       <Pallet />
+      <AnimatedBox />
+      <Robot />
       <WorkParticles />
     </div>
   );
