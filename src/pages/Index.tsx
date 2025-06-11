@@ -122,7 +122,7 @@ const Index = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center animate-slide-in-right">
-          <div className="flex items-center">
+          <div className="flex items-center space-x-4">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Status Paletização
             </h1>
@@ -188,3 +188,5 @@ const Index = () => {
 };
 
 export default Index;
+
+}
