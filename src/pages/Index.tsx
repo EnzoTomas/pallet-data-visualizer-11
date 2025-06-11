@@ -121,12 +121,16 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-center animate-slide-in-right">
-          <div className="flex items-center space-x-4">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Status Paletização
-            </h1>
-            <PalletRobot />
+        <div className="flex justify-between items-start animate-slide-in-right">
+          <div className="flex items-start space-x-6">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Status Paletização
+              </h1>
+            </div>
+            <div className="mt-[-8px]">
+              <PalletRobot />
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
