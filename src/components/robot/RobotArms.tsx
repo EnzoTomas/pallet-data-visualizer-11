@@ -20,8 +20,7 @@ export const RobotArms = () => {
         <div 
           className="w-1.5 h-8 bg-yellow-400 border border-yellow-500 origin-bottom transition-transform duration-2000"
           style={{
-            animation: 'armMove 4s ease-in-out infinite',
-            animationDelay: '0.5s'
+            animation: 'armMove 4s ease-in-out infinite'
           }}
         >
         </div>
