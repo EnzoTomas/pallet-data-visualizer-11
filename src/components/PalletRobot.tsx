@@ -3,127 +3,222 @@ import React from 'react';
 
 export const PalletRobot = () => {
   return (
-    <div className="relative w-16 h-16 mx-4">
-      {/* Corpo do robô */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        {/* Cabeça do robô */}
-        <div className="relative">
-          <div className="w-8 h-6 bg-primary rounded-t-lg border-2 border-primary/20 shadow-lg">
-            {/* Olhos */}
-            <div className="flex justify-center items-center pt-1 space-x-1">
-              <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse"></div>
-              <div className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-            </div>
-          </div>
+    <div className="relative w-20 h-20 mx-4">
+      {/* Base do robô */}
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
+        <div className="w-12 h-3 bg-gray-700 rounded-sm border border-gray-600"></div>
+      </div>
+      
+      {/* Corpo principal do robô (amarelo) */}
+      <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2">
+        <div className="relative w-8 h-10 bg-yellow-500 rounded-t-lg border-2 border-yellow-600 shadow-lg">
+          {/* Detalhes do corpo */}
+          <div className="absolute top-1 left-1/2 transform -translate-x-1/2 w-4 h-1 bg-yellow-600 rounded"></div>
+          <div className="absolute top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-800 rounded-full"></div>
           
-          {/* Corpo */}
-          <div className="w-10 h-8 bg-primary rounded-b-lg border-2 border-primary/20 shadow-lg -mt-1">
-            {/* Painel central */}
-            <div className="flex justify-center pt-1">
-              <div className="w-4 h-3 bg-secondary/80 rounded border border-secondary/40"></div>
-            </div>
-          </div>
-          
-          {/* Braços */}
-          <div className="absolute top-2 -left-3 w-2 h-4 bg-primary rounded border border-primary/20 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
-          <div className="absolute top-2 -right-3 w-2 h-4 bg-primary rounded border border-primary/20 animate-pulse" style={{ animationDelay: '0.8s' }}></div>
-          
-          {/* Base/Rodas */}
-          <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
-            <div className="w-6 h-2 bg-primary/80 rounded-full border border-primary/20"></div>
+          {/* Logo/marca */}
+          <div className="absolute top-6 left-1/2 transform -translate-x-1/2 text-xs font-bold text-gray-800">
+            R
           </div>
         </div>
       </div>
       
-      {/* Caixas sendo paletizadas - animação em loop */}
+      {/* Braço articulado - Ombro */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+        <div 
+          className="w-2 h-6 bg-yellow-500 border border-yellow-600 origin-bottom transition-transform duration-2000"
+          style={{
+            animation: 'shoulderMove 4s ease-in-out infinite'
+          }}
+        >
+        </div>
+      </div>
+      
+      {/* Braço articulado - Antebraço */}
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2">
+        <div 
+          className="w-1.5 h-8 bg-yellow-400 border border-yellow-500 origin-bottom transition-transform duration-2000"
+          style={{
+            animation: 'armMove 4s ease-in-out infinite',
+            animationDelay: '0.5s'
+          }}
+        >
+        </div>
+      </div>
+      
+      {/* Garra/Efetuador */}
+      <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+        <div 
+          className="relative"
+          style={{
+            animation: 'gripperMove 4s ease-in-out infinite',
+            animationDelay: '1s'
+          }}
+        >
+          {/* Centro da garra */}
+          <div className="w-3 h-2 bg-gray-600 rounded border border-gray-700"></div>
+          {/* Garras laterais */}
+          <div className="absolute -left-1 top-0 w-1 h-2 bg-gray-500 rounded-l border border-gray-600"></div>
+          <div className="absolute -right-1 top-0 w-1 h-2 bg-gray-500 rounded-r border border-gray-600"></div>
+        </div>
+      </div>
+      
+      {/* Caixas sendo paletizadas */}
       <div className="absolute top-0 right-0">
         <div className="relative">
-          {/* Caixa 1 */}
+          {/* Caixa 1 - sendo movimentada */}
           <div 
-            className="absolute w-3 h-3 bg-secondary border border-secondary/40 rounded-sm shadow-sm"
+            className="absolute w-4 h-4 bg-amber-600 border-2 border-amber-700 rounded-sm shadow-lg"
             style={{
-              animation: 'palletize 3s ease-in-out infinite',
+              animation: 'boxPalletize 4s ease-in-out infinite',
               animationDelay: '0s'
             }}
           ></div>
           
           {/* Caixa 2 */}
           <div 
-            className="absolute w-3 h-3 bg-accent/70 border border-accent/40 rounded-sm shadow-sm"
+            className="absolute w-4 h-4 bg-orange-500 border-2 border-orange-600 rounded-sm shadow-lg"
             style={{
-              animation: 'palletize 3s ease-in-out infinite',
-              animationDelay: '1s'
+              animation: 'boxPalletize 4s ease-in-out infinite',
+              animationDelay: '1.3s'
             }}
           ></div>
           
           {/* Caixa 3 */}
           <div 
-            className="absolute w-3 h-3 bg-primary/60 border border-primary/40 rounded-sm shadow-sm"
+            className="absolute w-4 h-4 bg-red-500 border-2 border-red-600 rounded-sm shadow-lg"
             style={{
-              animation: 'palletize 3s ease-in-out infinite',
-              animationDelay: '2s'
+              animation: 'boxPalletize 4s ease-in-out infinite',
+              animationDelay: '2.6s'
             }}
           ></div>
         </div>
       </div>
       
-      {/* Partículas de movimento */}
+      {/* Pallet (base onde as caixas são colocadas) */}
+      <div className="absolute bottom-0 right-2">
+        <div className="w-8 h-1 bg-amber-800 border border-amber-900 rounded-sm"></div>
+        {/* Ripas do pallet */}
+        <div className="absolute top-0 left-0 w-full h-full flex justify-between">
+          <div className="w-0.5 h-1 bg-amber-900"></div>
+          <div className="w-0.5 h-1 bg-amber-900"></div>
+          <div className="w-0.5 h-1 bg-amber-900"></div>
+        </div>
+      </div>
+      
+      {/* Partículas de movimento/trabalho */}
       <div className="absolute inset-0 pointer-events-none">
         <div 
-          className="absolute w-1 h-1 bg-accent/60 rounded-full"
+          className="absolute w-1 h-1 bg-yellow-400 rounded-full opacity-60"
           style={{
-            top: '20%',
-            left: '80%',
-            animation: 'particle 2s ease-in-out infinite',
+            top: '40%',
+            left: '70%',
+            animation: 'workParticle 3s ease-in-out infinite',
             animationDelay: '0.5s'
           }}
         ></div>
         <div 
-          className="absolute w-1 h-1 bg-secondary/60 rounded-full"
+          className="absolute w-0.5 h-0.5 bg-orange-400 rounded-full opacity-80"
           style={{
             top: '60%',
-            left: '85%',
-            animation: 'particle 2s ease-in-out infinite',
-            animationDelay: '1.5s'
+            left: '75%',
+            animation: 'workParticle 3s ease-in-out infinite',
+            animationDelay: '1.8s'
           }}
         ></div>
       </div>
       
       <style jsx>{`
-        @keyframes palletize {
+        @keyframes shoulderMove {
+          0% { transform: rotate(0deg); }
+          25% { transform: rotate(-15deg); }
+          50% { transform: rotate(10deg); }
+          75% { transform: rotate(-5deg); }
+          100% { transform: rotate(0deg); }
+        }
+        
+        @keyframes armMove {
+          0% { transform: rotate(0deg) translateY(0); }
+          30% { transform: rotate(-20deg) translateY(-2px); }
+          60% { transform: rotate(15deg) translateY(-4px); }
+          80% { transform: rotate(-10deg) translateY(-1px); }
+          100% { transform: rotate(0deg) translateY(0); }
+        }
+        
+        @keyframes gripperMove {
+          0% { 
+            transform: translateX(0) translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+          20% { 
+            transform: translateX(10px) translateY(-5px) rotate(5deg);
+            opacity: 1;
+          }
+          40% { 
+            transform: translateX(20px) translateY(-8px) rotate(-3deg);
+            opacity: 1;
+          }
+          60% { 
+            transform: translateX(25px) translateY(5px) rotate(2deg);
+            opacity: 1;
+          }
+          80% { 
+            transform: translateX(15px) translateY(8px) rotate(-1deg);
+            opacity: 1;
+          }
+          100% { 
+            transform: translateX(0) translateY(0) rotate(0deg);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes boxPalletize {
           0% {
-            transform: translateY(-10px) translateX(0) rotate(0deg);
+            transform: translateX(-15px) translateY(-20px) rotate(0deg);
             opacity: 0;
           }
-          20% {
-            transform: translateY(-8px) translateX(-5px) rotate(5deg);
+          15% {
+            transform: translateX(-10px) translateY(-15px) rotate(2deg);
             opacity: 1;
           }
-          50% {
-            transform: translateY(0) translateX(-10px) rotate(0deg);
+          35% {
+            transform: translateX(5px) translateY(-10px) rotate(-1deg);
             opacity: 1;
           }
-          80% {
-            transform: translateY(5px) translateX(-12px) rotate(-2deg);
+          55% {
+            transform: translateX(15px) translateY(-5px) rotate(1deg);
+            opacity: 1;
+          }
+          75% {
+            transform: translateX(20px) translateY(5px) rotate(0deg);
+            opacity: 1;
+          }
+          90% {
+            transform: translateX(25px) translateY(12px) rotate(0deg);
             opacity: 0.8;
           }
           100% {
-            transform: translateY(10px) translateX(-15px) rotate(0deg);
+            transform: translateX(30px) translateY(15px) rotate(0deg);
             opacity: 0;
           }
         }
         
-        @keyframes particle {
+        @keyframes workParticle {
           0%, 100% {
             transform: translateY(0) scale(0);
             opacity: 0;
           }
-          50% {
-            transform: translateY(-8px) scale(1);
+          40% {
+            transform: translateY(-10px) scale(1);
             opacity: 1;
+          }
+          80% {
+            transform: translateY(-15px) scale(0.8);
+            opacity: 0.6;
           }
         }
       `}</style>
     </div>
   );
 };
+```
