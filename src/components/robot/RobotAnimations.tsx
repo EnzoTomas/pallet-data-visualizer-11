@@ -25,20 +25,28 @@ export const RobotAnimations = () => {
           transform: translateX(0) translateY(0) rotate(0deg);
           opacity: 1;
         }
-        20% { 
-          transform: translateX(10px) translateY(-5px) rotate(5deg);
+        15% { 
+          transform: translateX(5px) translateY(-8px) rotate(-15deg);
           opacity: 1;
         }
-        40% { 
-          transform: translateX(20px) translateY(-8px) rotate(-3deg);
+        30% { 
+          transform: translateX(12px) translateY(-12px) rotate(-20deg);
+          opacity: 1;
+        }
+        45% { 
+          transform: translateX(18px) translateY(-8px) rotate(10deg);
           opacity: 1;
         }
         60% { 
-          transform: translateX(25px) translateY(5px) rotate(2deg);
+          transform: translateX(22px) translateY(-2px) rotate(15deg);
           opacity: 1;
         }
-        80% { 
-          transform: translateX(15px) translateY(8px) rotate(-1deg);
+        75% { 
+          transform: translateX(20px) translateY(2px) rotate(-5deg);
+          opacity: 1;
+        }
+        90% { 
+          transform: translateX(10px) translateY(4px) rotate(-10deg);
           opacity: 1;
         }
         100% { 
@@ -47,34 +55,50 @@ export const RobotAnimations = () => {
         }
       }
       
+      @keyframes gripperGrab {
+        0%, 20% {
+          transform: scaleX(1);
+        }
+        35%, 65% {
+          transform: scaleX(0.7);
+        }
+        80%, 100% {
+          transform: scaleX(1);
+        }
+      }
+      
       @keyframes boxPalletize {
         0% {
-          transform: translateX(-15px) translateY(-20px) rotate(0deg);
+          transform: translateX(-20px) translateY(-25px) rotate(0deg);
           opacity: 0;
         }
-        15% {
-          transform: translateX(-10px) translateY(-15px) rotate(2deg);
+        10% {
+          transform: translateX(-15px) translateY(-20px) rotate(2deg);
           opacity: 1;
         }
-        35% {
-          transform: translateX(5px) translateY(-10px) rotate(-1deg);
+        25% {
+          transform: translateX(-5px) translateY(-15px) rotate(-1deg);
+          opacity: 1;
+        }
+        40% {
+          transform: translateX(8px) translateY(-12px) rotate(1deg);
           opacity: 1;
         }
         55% {
-          transform: translateX(15px) translateY(-5px) rotate(1deg);
+          transform: translateX(15px) translateY(-8px) rotate(0deg);
           opacity: 1;
         }
-        75% {
-          transform: translateX(20px) translateY(5px) rotate(0deg);
+        70% {
+          transform: translateX(20px) translateY(-2px) rotate(0deg);
           opacity: 1;
         }
-        90% {
-          transform: translateX(25px) translateY(12px) rotate(0deg);
-          opacity: 0.8;
+        85% {
+          transform: translateX(25px) translateY(8px) rotate(0deg);
+          opacity: 1;
         }
         100% {
           transform: translateX(30px) translateY(15px) rotate(0deg);
-          opacity: 0;
+          opacity: 0.3;
         }
       }
       
