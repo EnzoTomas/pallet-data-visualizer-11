@@ -1,105 +1,57 @@
-
 import React from 'react';
 
 export const RobotAnimations = () => {
   return (
     <style>{`
+      /* Animação do ombro (mantida como estava) */
       @keyframes shoulderMove {
-        0% { transform: rotate(0deg); }
+        0%, 100% { transform: rotate(0deg); }
         25% { transform: rotate(-15deg); }
         50% { transform: rotate(10deg); }
         75% { transform: rotate(-5deg); }
-        100% { transform: rotate(0deg); }
       }
       
+      /* Animação do antebraço (mantida como estava) */
       @keyframes armMove {
-        0% { transform: rotate(0deg) translateY(0); }
+        0%, 100% { transform: rotate(0deg); }
         30% { transform: rotate(-20deg) translateY(-2px); }
         60% { transform: rotate(15deg) translateY(-4px); }
         80% { transform: rotate(-10deg) translateY(-1px); }
-        100% { transform: rotate(0deg) translateY(0); }
       }
-      
-      @keyframes gripperMove {
-        0% { 
-          transform: translateX(0) translateY(0) rotate(0deg);
-          opacity: 1;
-        }
-        15% { 
-          transform: translateX(5px) translateY(-8px) rotate(-15deg);
-          opacity: 1;
-        }
-        30% { 
-          transform: translateX(12px) translateY(-12px) rotate(-20deg);
-          opacity: 1;
-        }
-        45% { 
-          transform: translateX(18px) translateY(-8px) rotate(10deg);
-          opacity: 1;
-        }
-        60% { 
-          transform: translateX(22px) translateY(-2px) rotate(15deg);
-          opacity: 1;
-        }
-        75% { 
-          transform: translateX(20px) translateY(2px) rotate(-5deg);
-          opacity: 1;
-        }
-        90% { 
-          transform: translateX(10px) translateY(4px) rotate(-10deg);
-          opacity: 1;
-        }
-        100% { 
-          transform: translateX(0) translateY(0) rotate(0deg);
-          opacity: 1;
-        }
-      }
-      
-      @keyframes gripperGrab {
-        0%, 20% {
-          transform: scaleX(1);
-        }
-        35%, 65% {
-          transform: scaleX(0.7);
-        }
-        80%, 100% {
-          transform: scaleX(1);
-        }
-      }
-      
-      @keyframes boxPalletize {
+
+      /* NOVA ANIMAÇÃO UNIFICADA: O caminho da Garra e da Caixa */
+      @keyframes gripperPath {
+        /* Fase 1: Ir até a caixa (0% -> 30%) */
         0% {
-          transform: translateX(-20px) translateY(-25px) rotate(0deg);
-          opacity: 0;
+          transform: translateX(0px) translateY(0px) rotate(0deg);
         }
-        10% {
-          transform: translateX(-15px) translateY(-20px) rotate(2deg);
-          opacity: 1;
+        30% {
+          /* Ponto exato onde a garra encontra a caixa */
+          transform: translateX(-18px) translateY(8px) rotate(-35deg);
         }
-        25% {
-          transform: translateX(-5px) translateY(-15px) rotate(-1deg);
-          opacity: 1;
-        }
-        40% {
-          transform: translateX(8px) translateY(-12px) rotate(1deg);
-          opacity: 1;
-        }
-        55% {
-          transform: translateX(15px) translateY(-8px) rotate(0deg);
-          opacity: 1;
-        }
+
+        /* Fase 2: Levar a caixa até o pallet (30% -> 70%) */
         70% {
-          transform: translateX(20px) translateY(-2px) rotate(0deg);
-          opacity: 1;
+          /* Ponto exato onde a garra solta a caixa no pallet */
+          transform: translateX(28px) translateY(18px) rotate(25deg);
         }
-        85% {
-          transform: translateX(25px) translateY(8px) rotate(0deg);
-          opacity: 1;
-        }
+
+        /* Fase 3: Voltar para a posição inicial (70% -> 100%) */
         100% {
-          transform: translateX(30px) translateY(15px) rotate(0deg);
-          opacity: 0.3;
+          transform: translateX(0px) translateY(0px) rotate(0deg);
         }
+      }
+
+      /* NOVA ANIMAÇÃO DE AÇÃO: Abrir e Fechar a Garra */
+      @keyframes gripperGrabAction {
+        /* Garra fica aberta até chegar na caixa */
+        0%, 25% { transform: scaleX(1); }
+        
+        /* Fecha para pegar a caixa */
+        30%, 65% { transform: scaleX(0.7); } 
+        
+        /* Abre para soltar a caixa */
+        70%, 100% { transform: scaleX(1); }
       }
       
       @keyframes workParticle {
