@@ -1,6 +1,7 @@
 
 import { Card } from "@/components/ui/card";
 import { CountUp } from "@/components/CountUp";
+import { Clock, TrendingUp, Users } from "lucide-react";
 
 interface CircularProgressProps {
   percentage: number;
@@ -10,8 +11,8 @@ interface CircularProgressProps {
 }
 
 export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: CircularProgressProps) => {
-  const radius = 45;
-  const strokeWidth = 8;
+  const radius = 50;
+  const strokeWidth = 6;
   const normalizedRadius = radius - strokeWidth * 2;
   const circumference = normalizedRadius * 2 * Math.PI;
   const strokeDasharray = `${circumference} ${circumference}`;
@@ -23,56 +24,106 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
     return "#ef4444"; // red
   };
 
+  const getGradientColor = () => {
+    if (percentage >= 70) return "from-green-500/20 to-green-100/50";
+    if (percentage >= 50) return "from-yellow-500/20 to-yellow-100/50";
+    return "from-red-500/20 to-red-100/50";
+  };
+
+  const total = inseridos + rejeitos;
+
   return (
-    <Card className="flex flex-col items-center justify-center p-6 min-h-[200px] hover:shadow-lg transition-all duration-300 hover:scale-105 bg-gradient-to-br from-white to-gray-50 border-l-4 border-l-blue-500 scroll-animate">
-      <div className="text-sm text-muted-foreground mb-2 font-semibold">{label}</div>
-      <div className="relative animate-fade-in">
-        <svg
-          height={radius * 2}
-          width={radius * 2}
-          className="transform -rotate-90 drop-shadow-sm"
-        >
-          <circle
-            stroke="#e5e7eb"
-            fill="transparent"
-            strokeWidth={strokeWidth}
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
-          />
-          <circle
-            stroke={getColor()}
-            fill="transparent"
-            strokeWidth={strokeWidth}
-            strokeDasharray={strokeDasharray}
-            style={{ 
-              strokeDashoffset,
-              transition: 'stroke-dashoffset 1s ease-in-out, stroke 0.3s ease',
-            }}
-            r={normalizedRadius}
-            cx={radius}
-            cy={radius}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className="text-2xl font-bold text-gray-800">
-            <CountUp end={percentage} decimals={1} suffix="%" />
-          </div>
+    <Card className={`relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${getGradientColor()} border-0 shadow-lg scroll-animate`}>
+      {/* Header with gradient */}
+      <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 border-b border-gray-100">
+        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+          <Clock className="h-4 w-4" />
+          {label}
         </div>
       </div>
-      <div className="mt-3 text-center space-y-2">
-        <div className="text-sm bg-green-50 px-3 py-1 rounded-full">
-          <span className="text-green-700 font-medium">Inseridos:</span> 
-          <span className="font-bold text-green-800 ml-1">
-            <CountUp end={inseridos} />
-          </span>
+
+      {/* Main content */}
+      <div className="p-6">
+        {/* Circular progress */}
+        <div className="flex justify-center mb-6">
+          <div className="relative">
+            <svg
+              height={radius * 2}
+              width={radius * 2}
+              className="transform -rotate-90 drop-shadow-sm"
+            >
+              <circle
+                stroke="#e5e7eb"
+                fill="transparent"
+                strokeWidth={strokeWidth}
+                r={normalizedRadius}
+                cx={radius}
+                cy={radius}
+              />
+              <circle
+                stroke={getColor()}
+                fill="transparent"
+                strokeWidth={strokeWidth}
+                strokeDasharray={strokeDasharray}
+                style={{ 
+                  strokeDashoffset,
+                  transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease',
+                }}
+                r={normalizedRadius}
+                cx={radius}
+                cy={radius}
+                strokeLinecap="round"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-3xl font-bold" style={{ color: getColor() }}>
+                <CountUp end={percentage} decimals={1} suffix="%" />
+              </div>
+              <div className="text-xs text-muted-foreground font-medium">ADERÊNCIA</div>
+            </div>
+          </div>
         </div>
-        <div className="text-sm bg-red-50 px-3 py-1 rounded-full">
-          <span className="text-red-700 font-medium">Rejeitos:</span> 
-          <span className="font-bold text-red-800 ml-1">
-            <CountUp end={rejeitos} />
-          </span>
+
+        {/* Stats grid */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-green-200/50">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <span className="text-xs font-medium text-green-700">Inseridos</span>
+            </div>
+            <div className="text-xl font-bold text-green-800">
+              <CountUp end={inseridos} />
+            </div>
+            <div className="text-xs text-green-600">
+              {total > 0 ? `${((inseridos / total) * 100).toFixed(1)}%` : '0%'} do total
+            </div>
+          </div>
+
+          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-red-200/50">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+              <span className="text-xs font-medium text-red-700">Rejeitos</span>
+            </div>
+            <div className="text-xl font-bold text-red-800">
+              <CountUp end={rejeitos} />
+            </div>
+            <div className="text-xs text-red-600">
+              {total > 0 ? `${((rejeitos / total) * 100).toFixed(1)}%` : '0%'} do total
+            </div>
+          </div>
+        </div>
+
+        {/* Total volume */}
+        <div className="mt-4 bg-white/40 backdrop-blur-sm rounded-lg p-3 border border-gray-200/50">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Volume Total</span>
+            </div>
+            <div className="text-lg font-bold text-primary">
+              <CountUp end={total} />
+            </div>
+          </div>
         </div>
       </div>
     </Card>

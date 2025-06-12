@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -117,16 +118,35 @@ const Index = () => {
     console.log('Dados importados com sucesso');
   };
 
+  // Get the latest date from the data
+  const getLatestDataDate = () => {
+    if (processedData.length === 0) return '';
+    
+    const latestDate = processedData
+      .filter(item => item.total() > 0)
+      .sort((a, b) => {
+        const dateA = new Date(a.date.split('/').reverse().join('-'));
+        const dateB = new Date(b.date.split('/').reverse().join('-'));
+        return dateB.getTime() - dateA.getTime();
+      })[0];
+    
+    return latestDate ? latestDate.date : '';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-center animate-slide-in-right">
-          {/* Centralized title */}
-          <div className="flex-1 flex justify-center items-center">
+        <div className="flex justify-between items-start animate-slide-in-right">
+          {/* Left side - Title and last update */}
+          <div className="flex flex-col">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent relative overflow-hidden shine-text">
               Status Paletização
             </h1>
+            <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              Última atualização de dados: {getLatestDataDate()}
+            </p>
           </div>
           
           {/* Right side elements */}
