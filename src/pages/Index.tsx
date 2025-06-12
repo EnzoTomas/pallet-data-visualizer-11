@@ -124,14 +124,15 @@ const Index = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center animate-slide-in-right">
-          <div className="flex items-center gap-4">
+          {/* Centralized title with new robot */}
+          <div className="flex-1 flex justify-center items-center gap-4">
+            <SecondRobot />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent relative overflow-hidden shine-text">
               Status Paletização
             </h1>
-            <div className="flex items-center">
-              <PalletRobot />
-            </div>
           </div>
+          
+          {/* Right side elements */}
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
               <Activity className="h-6 w-6 text-primary animate-pulse" />
@@ -140,6 +141,11 @@ const Index = () => {
             <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
             <ImportButton onDataImport={handleDataImport} />
             <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
+            
+            {/* Original robot moved to the far right */}
+            <div className="flex items-center">
+              <PalletRobot />
+            </div>
           </div>
         </div>
 
