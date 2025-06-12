@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Share } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ShareButtonProps, ShareData } from '@/types/share';
 import { ShareDataSelector } from '@/components/share/ShareDataSelector';
 import { SharePlatformButtons } from '@/components/share/SharePlatformButtons';
@@ -38,12 +39,19 @@ export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonPr
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="flex items-center gap-1 px-2 text-xs">
-          <Share className="h-3 w-3" />
-          <span className="hidden sm:inline">Compartilhar</span>
-        </Button>
-      </DialogTrigger>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" className="flex items-center gap-1 px-2 text-xs">
+              <Share className="h-3 w-3" />
+              <span className="hidden sm:inline">Compartilhar</span>
+            </Button>
+          </DialogTrigger>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Compartilhar dados via WhatsApp, email ou outras plataformas</p>
+        </TooltipContent>
+      </Tooltip>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Compartilhar Dashboard</DialogTitle>

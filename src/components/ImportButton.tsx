@@ -2,6 +2,7 @@
 import React, { useRef } from 'react';
 import { Download } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useToast } from "@/hooks/use-toast";
 
 interface ImportButtonProps {
@@ -95,15 +96,22 @@ export const ImportButton = ({ onDataImport }: ImportButtonProps) => {
         onChange={handleFileChange}
         style={{ display: 'none' }}
       />
-      <Button
-        onClick={handleFileSelect}
-        variant="outline"
-        size="sm"
-        className="flex items-center gap-1 px-2 text-xs"
-      >
-        <Download className="h-3 w-3 rotate-180" />
-        <span className="hidden sm:inline">Importar Dados</span>
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            onClick={handleFileSelect}
+            variant="outline"
+            size="sm"
+            className="flex items-center gap-1 px-2 text-xs"
+          >
+            <Download className="h-3 w-3 rotate-180" />
+            <span className="hidden sm:inline">Importar Dados</span>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Importar novos dados (.tsv)</p>
+        </TooltipContent>
+      </Tooltip>
     </>
   );
 };
