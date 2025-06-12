@@ -137,7 +137,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex justify-between items-start animate-slide-in-right">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 animate-slide-in-right">
           {/* Left side - Title and last update */}
           <div className="flex flex-col">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent relative overflow-hidden shine-text">
@@ -150,14 +150,16 @@ const Index = () => {
           </div>
           
           {/* Right side elements */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:space-x-4 sm:space-y-0">
+            <div className="flex items-center space-x-2 order-2 sm:order-1">
               <Activity className="h-6 w-6 text-primary animate-pulse" />
               <span className="text-sm text-primary font-medium">Sistema Online</span>
             </div>
-            <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
-            <ImportButton onDataImport={handleDataImport} />
-            <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
+            <div className="flex items-center space-x-2 order-1 sm:order-2">
+              <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
+              <ImportButton onDataImport={handleDataImport} />
+              <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
+            </div>
           </div>
         </div>
 
