@@ -33,11 +33,11 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
   const total = inseridos + rejeitos;
 
   return (
-    <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200 shadow-lg scroll-animate">
+    <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200 shadow-lg scroll-animate group">
       {/* Header with gradient */}
-      <div className={`bg-gradient-to-r ${getHeaderGradient()} p-4`}>
+      <div className={`bg-gradient-to-r ${getHeaderGradient()} p-4 transition-all duration-300 group-hover:shadow-lg`}>
         <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Clock className="h-4 w-4" />
+          <Clock className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
           {label}
         </div>
       </div>
@@ -46,7 +46,7 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
       <div className="p-6">
         {/* Circular progress */}
         <div className="flex justify-center mb-6">
-          <div className="relative">
+          <div className="relative group-hover:scale-105 transition-transform duration-300">
             <svg
               height={radius * 2}
               width={radius * 2}
@@ -76,7 +76,7 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-3xl font-bold" style={{ color: getColor() }}>
+              <div className="text-xl font-bold" style={{ color: getColor() }}>
                 <CountUp end={percentage} decimals={1} suffix="%" />
               </div>
               <div className="text-xs text-muted-foreground font-medium">ADERÊNCIA</div>
@@ -86,9 +86,9 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 rounded-lg p-3 border border-green-200/50">
+          <div className="bg-gray-50 rounded-lg p-3 border border-green-200/50 transition-all duration-300 hover:bg-green-50 hover:border-green-300 hover:shadow-md hover:scale-105">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full transition-all duration-300 group-hover:scale-125"></div>
               <span className="text-xs font-medium text-green-700">Inseridos</span>
             </div>
             <div className="text-xl font-bold text-green-800">
@@ -99,9 +99,9 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-3 border border-red-200/50">
+          <div className="bg-gray-50 rounded-lg p-3 border border-red-200/50 transition-all duration-300 hover:bg-red-50 hover:border-red-300 hover:shadow-md hover:scale-105">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+              <div className="w-2 h-2 bg-red-500 rounded-full transition-all duration-300 group-hover:scale-125"></div>
               <span className="text-xs font-medium text-red-700">Rejeitos</span>
             </div>
             <div className="text-xl font-bold text-red-800">
@@ -114,10 +114,10 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
         </div>
 
         {/* Total volume */}
-        <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200/50">
+        <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200/50 transition-all duration-300 hover:bg-blue-50 hover:border-blue-300 hover:shadow-md hover:scale-105">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary" />
+              <Users className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
               <span className="text-sm font-medium text-primary">Volume Total</span>
             </div>
             <div className="text-lg font-bold text-primary">
