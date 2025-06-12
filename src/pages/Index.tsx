@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +16,6 @@ import { formatDateForInput, getYesterday } from "@/utils/dateUtils";
 import { DownloadButton } from "@/components/DownloadButton";
 import { ImportButton } from "@/components/ImportButton";
 import { ShareButton } from "@/components/ShareButton";
-import { PalletRobot } from "@/components/PalletRobot";
 
 const defaultRawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4	4	50,00%	0	0	
 03/04/2025	17	8	68,00%	3	0	1	0	0	5	0	0	3	1	5	6	5	54,55%	11	3	78,57%	0	0	
@@ -124,9 +122,8 @@ const Index = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex justify-between items-center animate-slide-in-right">
-          {/* Centralized title with new robot */}
-          <div className="flex-1 flex justify-center items-center gap-4">
-            <SecondRobot />
+          {/* Centralized title */}
+          <div className="flex-1 flex justify-center items-center">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent relative overflow-hidden shine-text">
               Status Paletização
             </h1>
@@ -141,11 +138,6 @@ const Index = () => {
             <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
             <ImportButton onDataImport={handleDataImport} />
             <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
-            
-            {/* Original robot moved to the far right */}
-            <div className="flex items-center">
-              <PalletRobot />
-            </div>
           </div>
         </div>
 
