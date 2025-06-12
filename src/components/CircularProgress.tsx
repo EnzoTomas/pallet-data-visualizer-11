@@ -24,19 +24,19 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
     return "#ef4444"; // red
   };
 
-  const getGradientColor = () => {
-    if (percentage >= 70) return "from-green-500/20 to-green-100/50";
-    if (percentage >= 50) return "from-yellow-500/20 to-yellow-100/50";
-    return "from-red-500/20 to-red-100/50";
+  const getHeaderGradient = () => {
+    if (percentage >= 70) return "from-green-500 to-green-600";
+    if (percentage >= 50) return "from-yellow-500 to-yellow-600";
+    return "from-red-500 to-red-600";
   };
 
   const total = inseridos + rejeitos;
 
   return (
-    <Card className={`relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-gradient-to-br ${getGradientColor()} border-0 shadow-lg scroll-animate`}>
+    <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200 shadow-lg scroll-animate">
       {/* Header with gradient */}
-      <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 border-b border-gray-100">
-        <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+      <div className={`bg-gradient-to-r ${getHeaderGradient()} p-4`}>
+        <div className="flex items-center gap-2 text-sm font-semibold text-white">
           <Clock className="h-4 w-4" />
           {label}
         </div>
@@ -86,7 +86,7 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
 
         {/* Stats grid */}
         <div className="grid grid-cols-2 gap-4">
-          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-green-200/50">
+          <div className="bg-gray-50 rounded-lg p-3 border border-green-200/50">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span className="text-xs font-medium text-green-700">Inseridos</span>
@@ -99,7 +99,7 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
             </div>
           </div>
 
-          <div className="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-red-200/50">
+          <div className="bg-gray-50 rounded-lg p-3 border border-red-200/50">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 bg-red-500 rounded-full"></div>
               <span className="text-xs font-medium text-red-700">Rejeitos</span>
@@ -114,7 +114,7 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
         </div>
 
         {/* Total volume */}
-        <div className="mt-4 bg-white/40 backdrop-blur-sm rounded-lg p-3 border border-gray-200/50">
+        <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
