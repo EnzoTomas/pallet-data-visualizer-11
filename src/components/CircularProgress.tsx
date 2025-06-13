@@ -1,131 +1,122 @@
 
-import { Card } from "@/components/ui/card";
-import { CountUp } from "@/components/CountUp";
-import { Clock, TrendingUp, Users } from "lucide-react";
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { HourlyDataModal } from './HourlyDataModal';
 
 interface CircularProgressProps {
-  percentage: number;
-  label: string;
+  title: string;
   inseridos: number;
   rejeitos: number;
+  eficiencia: number;
+  shiftNumber: number;
+  data: any[];
 }
 
-export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: CircularProgressProps) => {
-  const radius = 50;
-  const strokeWidth = 6;
-  const normalizedRadius = radius - strokeWidth * 2;
-  const circumference = normalizedRadius * 2 * Math.PI;
-  const strokeDasharray = `${circumference} ${circumference}`;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-  const getColor = () => {
-    if (percentage >= 70) return "#10b981"; // green
-    if (percentage >= 50) return "#f59e0b"; // yellow
-    return "#ef4444"; // red
-  };
-
-  const getHeaderGradient = () => {
-    if (percentage >= 70) return "from-green-500 to-green-600";
-    if (percentage >= 50) return "from-yellow-500 to-yellow-600";
-    return "from-red-500 to-red-600";
-  };
-
+export const CircularProgress = ({ title, inseridos, rejeitos, eficiencia, shiftNumber, data }: CircularProgressProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const total = inseridos + rejeitos;
+  
+  const getColor = (efficiency: number) => {
+    if (efficiency >= 70) return "bg-green-500";
+    if (efficiency >= 50) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
+  const getTextColor = (efficiency: number) => {
+    if (efficiency >= 70) return "text-green-600";
+    if (efficiency >= 50) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const handleVolumeClick = () => {
+    setIsModalOpen(true);
+  };
 
   return (
-    <Card className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white border border-gray-200 shadow-lg scroll-animate group">
-      {/* Header with gradient */}
-      <div className={`bg-gradient-to-r ${getHeaderGradient()} p-4 transition-all duration-300 group-hover:shadow-lg`}>
-        <div className="flex items-center gap-2 text-sm font-semibold text-white">
-          <Clock className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12" />
-          {label}
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="p-6">
-        {/* Circular progress */}
-        <div className="flex justify-center mb-6">
-          <div className="relative group-hover:scale-105 transition-transform duration-300">
-            <svg
-              height={radius * 2}
-              width={radius * 2}
-              className="transform -rotate-90 drop-shadow-sm"
-            >
+    <>
+      <Card className="hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-card to-accent/5 border-t-4 border-t-accent">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-bold text-center">{title}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Circular Progress */}
+          <div className="relative w-32 h-32 mx-auto">
+            <svg className="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+              {/* Background circle */}
               <circle
-                stroke="#e5e7eb"
+                cx="60"
+                cy="60"
+                r="54"
+                stroke="currentColor"
+                strokeWidth="8"
                 fill="transparent"
-                strokeWidth={strokeWidth}
-                r={normalizedRadius}
-                cx={radius}
-                cy={radius}
+                className="text-gray-200"
               />
+              {/* Progress circle */}
               <circle
-                stroke={getColor()}
+                cx="60"
+                cy="60"
+                r="54"
+                stroke="currentColor"
+                strokeWidth="8"
                 fill="transparent"
-                strokeWidth={strokeWidth}
-                strokeDasharray={strokeDasharray}
-                style={{ 
-                  strokeDashoffset,
-                  transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1), stroke 0.3s ease',
-                }}
-                r={normalizedRadius}
-                cx={radius}
-                cy={radius}
+                strokeDasharray={`${2 * Math.PI * 54}`}
+                strokeDashoffset={`${2 * Math.PI * 54 * (1 - eficiencia / 100)}`}
+                className={getTextColor(eficiencia).replace('text-', 'text-')}
                 strokeLinecap="round"
               />
             </svg>
+            {/* Center text */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <div className="text-xl font-bold" style={{ color: getColor() }}>
-                <CountUp end={percentage} decimals={1} suffix="%" />
-              </div>
-              <div className="text-xs text-muted-foreground font-medium">EFICIÊNCIA</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats grid */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-50 rounded-lg p-3 border border-green-200/50 transition-all duration-300 hover:bg-green-50 hover:border-green-300 hover:shadow-md hover:scale-105">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 bg-green-500 rounded-full transition-all duration-300 group-hover:scale-125"></div>
-              <span className="text-xs font-medium text-green-700">Inseridos</span>
-            </div>
-            <div className="text-xl font-bold text-green-800">
-              <CountUp end={inseridos} />
-            </div>
-            <div className="text-xs text-green-600">
-              {total > 0 ? `${((inseridos / total) * 100).toFixed(1)}%` : '0%'} do total
+              <span className={`text-2xl font-bold ${getTextColor(eficiencia)}`}>
+                {eficiencia.toFixed(1)}%
+              </span>
+              <span className="text-xs text-gray-500">Eficiência</span>
             </div>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-3 border border-red-200/50 transition-all duration-300 hover:bg-red-50 hover:border-red-300 hover:shadow-md hover:scale-105">
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 bg-red-500 rounded-full transition-all duration-300 group-hover:scale-125"></div>
-              <span className="text-xs font-medium text-red-700">Rejeitos</span>
+          {/* Stats */}
+          <div className="space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Inseridos:</span>
+              <span className="font-semibold text-primary">{inseridos}</span>
             </div>
-            <div className="text-xl font-bold text-red-800">
-              <CountUp end={rejeitos} />
+            <div className="flex justify-between items-center">
+              <span className="text-sm text-gray-600">Rejeitados:</span>
+              <span className="font-semibold text-destructive">{rejeitos}</span>
             </div>
-            <div className="text-xs text-red-600">
-              {total > 0 ? `${((rejeitos / total) * 100).toFixed(1)}%` : '0%'} do total
+            <div className="flex justify-between items-center pt-2 border-t">
+              <span className="text-sm font-medium text-gray-700">Volume Total:</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleVolumeClick}
+                className="font-bold text-accent-foreground hover:text-accent hover:bg-accent/10 p-1 h-auto"
+              >
+                {total}
+              </Button>
             </div>
           </div>
-        </div>
 
-        {/* Total volume */}
-        <div className="mt-4 bg-gray-50 rounded-lg p-3 border border-gray-200/50 transition-all duration-300 hover:bg-blue-50 hover:border-blue-300 hover:shadow-md hover:scale-105">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-primary transition-transform duration-300 group-hover:scale-110" />
-              <span className="text-sm font-medium text-primary">Volume Total</span>
+          {/* Progress bar */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Meta: 50%</span>
+              <span>{eficiencia.toFixed(1)}%</span>
             </div>
-            <div className="text-lg font-bold text-primary">
-              <CountUp end={total} />
-            </div>
+            <Progress value={eficiencia} className="h-2" />
           </div>
-        </div>
-      </div>
-    </Card>
+        </CardContent>
+      </Card>
+
+      <HourlyDataModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        data={data}
+        shiftNumber={shiftNumber}
+      />
+    </>
   );
 };

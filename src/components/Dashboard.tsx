@@ -1,79 +1,66 @@
-
-import { PeriodSelector } from "@/components/PeriodSelector";
-import { MainKPICards } from "@/components/MainKPICards";
-import { CircularProgress } from "@/components/CircularProgress";
-import { RejectAnalysisCharts } from "@/components/RejectAnalysisCharts";
-import { TrendChart } from "@/components/TrendChart";
-import { VolumeChart } from "@/components/VolumeChart";
+import { MainKPICards } from "./MainKPICards";
+import { CircularProgress } from "./CircularProgress";
+import { VolumeChart } from "./VolumeChart";
+import { TrendChart } from "./TrendChart";
+import { RejectAnalysisCharts } from "./RejectAnalysisCharts";
+import { PalletRobot } from "./PalletRobot";
 
 interface DashboardProps {
-  selectedPeriod: string;
-  onPeriodChange: (period: string) => void;
-  startDate: string;
-  endDate: string;
-  onStartDateChange: (date: string) => void;
-  onEndDateChange: (date: string) => void;
   filteredData: any[];
   aggregatedData: any;
   trendData: any[];
 }
 
-export const Dashboard = ({
-  selectedPeriod,
-  onPeriodChange,
-  startDate,
-  endDate,
-  onStartDateChange,
-  onEndDateChange,
-  filteredData,
-  aggregatedData,
-  trendData
-}: DashboardProps) => {
-  return (
-    <>
-      {/* Period Selector */}
-      <PeriodSelector
-        selectedPeriod={selectedPeriod}
-        onPeriodChange={onPeriodChange}
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={onStartDateChange}
-        onEndDateChange={onEndDateChange}
-      />
+export const Dashboard = ({ filteredData, aggregatedData, trendData }: DashboardProps) => {
+  const volumeData = filteredData.map(item => ({
+    date: item.date,
+    totalInseridos: item.totalInseridos,
+    totalRejeitos: item.totalRejeitos
+  }));
 
-      {/* Main KPI Cards */}
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
       <MainKPICards aggregatedData={aggregatedData} />
 
-      {/* Shift Performance Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <CircularProgress
-          percentage={aggregatedData.aderencia1T}
-          label="Turno 1 (06:00 - 14:00)"
+          title="1º Turno"
           inseridos={aggregatedData.inseridos1T}
           rejeitos={aggregatedData.rejeitos1T}
+          eficiencia={aggregatedData.aderencia1T}
+          shiftNumber={1}
+          data={filteredData}
         />
         <CircularProgress
-          percentage={aggregatedData.aderencia2T}
-          label="Turno 2 (14:00 - 22:00)"
+          title="2º Turno"
           inseridos={aggregatedData.inseridos2T}
           rejeitos={aggregatedData.rejeitos2T}
+          eficiencia={aggregatedData.aderencia2T}
+          shiftNumber={2}
+          data={filteredData}
         />
         <CircularProgress
-          percentage={aggregatedData.aderencia3T}
-          label="Turno 3 (22:00 - 06:00)"
+          title="3º Turno"
           inseridos={aggregatedData.inseridos3T}
           rejeitos={aggregatedData.rejeitos3T}
+          eficiencia={aggregatedData.aderencia3T}
+          shiftNumber={3}
+          data={filteredData}
         />
+        <div className="flex items-center justify-center">
+          <PalletRobot
+            isActive={aggregatedData.totalInseridos > 0}
+            efficiency={aggregatedData.eficiencia}
+          />
+        </div>
       </div>
 
-      {/* Reject Analysis Charts */}
-      <RejectAnalysisCharts data={filteredData} />
-
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <TrendChart trendData={trendData} currentEfficiency={aggregatedData.eficiencia} />
-        <VolumeChart volumeData={filteredData.slice(-30)} />
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <VolumeChart volumeData={volumeData} />
+        <TrendChart trendData={trendData} />
       </div>
-    </>
+
+      <RejectAnalysisCharts filteredData={filteredData} />
+    </div>
   );
 };
