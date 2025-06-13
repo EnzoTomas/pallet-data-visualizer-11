@@ -79,7 +79,7 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
               <div className="text-xl font-bold" style={{ color: getColor() }}>
                 <CountUp end={percentage} decimals={1} suffix="%" />
               </div>
-              <div className="text-xs text-muted-foreground font-medium">ADERÊNCIA</div>
+              <div className="text-xs text-muted-foreground font-medium">EFICIÊNCIA</div>
             </div>
           </div>
         </div>

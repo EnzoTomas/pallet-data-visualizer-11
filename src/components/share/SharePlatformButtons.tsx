@@ -60,14 +60,17 @@ export const SharePlatformButtons = ({
     });
   };
 
-  const shareToTelegram = async () => {
+  const shareToSlack = async () => {
     const text = getShareContent();
-    const url = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
+    // Primeiro copia o texto para o clipboard
+    await navigator.clipboard.writeText(text);
+    // Depois abre o Slack
+    const url = `slack://`;
     window.open(url, '_blank');
     onClose();
     toast({
       title: "Compartilhamento iniciado",
-      description: "Redirecionando para o Telegram...",
+      description: "Texto copiado! Redirecionando para o Slack...",
     });
   };
 
@@ -81,8 +84,8 @@ export const SharePlatformButtons = ({
         <Button onClick={shareToGmail} variant="outline" size="sm" className="w-full text-xs">
           📧 Gmail
         </Button>
-        <Button onClick={shareToTelegram} variant="outline" size="sm" className="w-full text-xs">
-          💬 Telegram
+        <Button onClick={shareToSlack} variant="outline" size="sm" className="w-full text-xs">
+          💬 Slack
         </Button>
         <Button onClick={copyToClipboard} variant="outline" size="sm" className="w-full text-xs">
           📋 Copiar
