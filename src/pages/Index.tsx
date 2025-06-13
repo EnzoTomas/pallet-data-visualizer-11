@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Activity } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -88,7 +87,8 @@ const defaultRawData = `02/04/2025	6	8	42,86%	4	0	0	0	0	2	2	2	4	0	4	2	4	33,33%	4
 08/06/2025	9	5	64,29%	4	0	0	0	1	0	0	0	4	0	1	0	0		0	0		9	5	64,29%
 09/06/2025	141	56	71,57%	14	1	2	0	33	10	7	3	14	2	46	64	20	76,19%	53	25	67,95%	24	11	68,57%
 10/06/2025	163	85	65,73%	32	1	3	2	29	29	8	0	32	4	63	50	30	62,50%	57	32	64,04%	56	23	70,89%
-11/06/2025	115	101	53,24%	49	0	3	1	32	36	14	2	49	3	75	47	34	58,02%	42	30	58,33%	26	37	41,27%`;
+11/06/2025	115	101	53,24%	49	0	3	1	32	36	14	2	49	3	75	47	34	58,02%	42	30	58,33%	26	37	41,27%
+12/06/2025	163	108	60,15%	33	2	3	0	50	36	12	1	33	5	93	64	49	56,64%	47	35	57,32%	52	24	68,42%`;
 
 const Index = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('ontem');
@@ -137,28 +137,30 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-accent/5 p-6 animate-fade-in">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 animate-slide-in-right">
+        <div className="flex flex-col gap-4 animate-slide-in-right">
           {/* Left side - Title and last update */}
-          <div className="flex flex-col">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent relative overflow-hidden shine-text">
-              Status Paletização
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
-              Última atualização de dados: {getLatestDataDate()}
-            </p>
-          </div>
-          
-          {/* Right side elements */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:space-x-4 sm:space-y-0">
-            <div className="flex items-center space-x-2 order-2 sm:order-1">
-              <Activity className="h-6 w-6 text-primary animate-pulse" />
-              <span className="text-sm text-primary font-medium">Sistema Online</span>
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <div className="flex flex-col">
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent relative overflow-hidden shine-text">
+                Status Paletização
+              </h1>
+              <p className="text-sm text-muted-foreground mt-2 flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" />
+                Última atualização de dados: {getLatestDataDate()}
+              </p>
             </div>
-            <div className="flex items-center space-x-2 order-1 sm:order-2">
-              <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
-              <ImportButton onDataImport={handleDataImport} />
-              <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
+            
+            {/* Right side elements */}
+            <div className="flex flex-col sm:flex-row items-start gap-3">
+              <div className="flex items-center space-x-2 order-2 sm:order-1">
+                <Activity className="h-6 w-6 text-primary animate-pulse" />
+                <span className="text-sm text-primary font-medium">Sistema Online</span>
+              </div>
+              <div className="flex items-center flex-wrap gap-2 order-1 sm:order-2">
+                <DownloadButton filteredData={filteredData} aggregatedData={aggregatedData} />
+                <ImportButton onDataImport={handleDataImport} />
+                <ShareButton aggregatedData={aggregatedData} filteredData={filteredData} />
+              </div>
             </div>
           </div>
         </div>
