@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DataProvider } from "@/components/DataProvider";
 import { Header } from "@/components/Header";
 import { Dashboard } from "@/components/Dashboard";
+import { PeriodSelector } from "@/components/PeriodSelector";
 
 const Index = () => {
   const { toast } = useToast();
@@ -42,6 +43,16 @@ const Index = () => {
                   handleDataImport(data);
                 }}
                 latestDataDate={getLatestDataDate()}
+              />
+
+              {/* Period Selector */}
+              <PeriodSelector
+                selectedPeriod={selectedPeriod}
+                onPeriodChange={setSelectedPeriod}
+                startDate={startDate}
+                endDate={endDate}
+                onStartDateChange={setStartDate}
+                onEndDateChange={setEndDate}
               />
 
               {/* Dashboard */}
