@@ -46,12 +46,6 @@ const Index = () => {
 
               {/* Dashboard */}
               <Dashboard
-                selectedPeriod={selectedPeriod}
-                onPeriodChange={setSelectedPeriod}
-                startDate={startDate}
-                endDate={endDate}
-                onStartDateChange={setStartDate}
-                onEndDateChange={setEndDate}
                 filteredData={filteredData}
                 aggregatedData={aggregatedData}
                 trendData={trendData}
