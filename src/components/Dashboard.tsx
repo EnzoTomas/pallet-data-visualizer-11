@@ -58,10 +58,13 @@ export const Dashboard = ({ filteredData, aggregatedData, trendData }: Dashboard
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         <VolumeChart volumeData={volumeData} />
-        <TrendChart trendData={trendData} />
+        <TrendChart 
+          trendData={trendData} 
+          currentEfficiency={aggregatedData.eficiencia}
+        />
       </div>
 
-      <RejectAnalysisCharts filteredData={filteredData} />
+      <RejectAnalysisCharts data={filteredData} />
     </div>
   );
 };
