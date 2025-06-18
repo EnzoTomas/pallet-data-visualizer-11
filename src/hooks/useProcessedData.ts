@@ -26,6 +26,9 @@ export interface ProcessedDataItem {
   inseridos3T: number;
   rejeitos3T: number;
   aderencia3T: number;
+  // Dados hora a hora
+  inseridosHora: number[];
+  rejeitosHora: number[];
   total: () => number;
 }
 
@@ -33,6 +36,16 @@ export const useProcessedData = (csvData: string) => {
   return useMemo(() => {
     return csvData.trim().split('\n').map(line => {
       const values = line.split('\t');
+      
+      // Extrair dados hora a hora (colunas 24-47 para inseridos, 48-71 para rejeitos)
+      const inseridosHora = Array.from({ length: 24 }, (_, i) => 
+        parseInt(values[24 + i]) || 0
+      );
+      
+      const rejeitosHora = Array.from({ length: 24 }, (_, i) => 
+        parseInt(values[48 + i]) || 0
+      );
+      
       return {
         date: values[0],
         totalInseridos: parseInt(values[1]) || 0,
@@ -58,6 +71,8 @@ export const useProcessedData = (csvData: string) => {
         inseridos3T: parseInt(values[21]) || 0,
         rejeitos3T: parseInt(values[22]) || 0,
         aderencia3T: parseFloat(values[23]?.replace('%', '').replace(',', '.')) || 0,
+        inseridosHora,
+        rejeitosHora,
         total: function() { return this.totalInseridos + this.totalRejeitos; }
       };
     }).filter(item => item.total() > 0);

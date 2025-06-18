@@ -5,6 +5,7 @@ import { CircularProgress } from "@/components/CircularProgress";
 import { RejectAnalysisCharts } from "@/components/RejectAnalysisCharts";
 import { TrendChart } from "@/components/TrendChart";
 import { VolumeChart } from "@/components/VolumeChart";
+import { HourlyAnalysisDashboard } from "@/components/HourlyAnalysisDashboard";
 
 interface DashboardProps {
   selectedPeriod: string;
@@ -65,6 +66,9 @@ export const Dashboard = ({
           rejeitos={aggregatedData.rejeitos3T}
         />
       </div>
+
+      {/* Hourly Analysis Dashboard */}
+      <HourlyAnalysisDashboard filteredData={filteredData} />
 
       {/* Reject Analysis Charts */}
       <RejectAnalysisCharts data={filteredData} />
