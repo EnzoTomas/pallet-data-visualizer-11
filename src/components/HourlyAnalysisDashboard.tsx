@@ -6,7 +6,6 @@ import { ChevronDown, ChevronUp, Clock, TrendingUp, TrendingDown, AlertTriangle 
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
 import { useHourlyAnalysis } from "@/hooks/useHourlyAnalysis";
 import { HourlyProductionChart } from "@/components/HourlyProductionChart";
-import { ShiftComparisonChart } from "@/components/ShiftComparisonChart";
 
 interface HourlyAnalysisDashboardProps {
   filteredData: ProcessedDataItem[];
@@ -55,78 +54,76 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
         </CardContent>
       </Card>
 
-      {/* Cards de resumo */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="hover-lift bg-gradient-to-br from-green-50 to-green-100 border-green-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-green-700 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Melhor Eficiência
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-800">
-              {String(analysis.bestEfficiencyHour.hour).padStart(2, '0')}:00
-            </div>
-            <p className="text-xs text-green-600">
-              {analysis.bestEfficiencyHour.eficiencia.toFixed(1)}% de eficiência
-            </p>
-          </CardContent>
-        </Card>
+      {/* Dashboard único consolidado */}
+      <Card className="hover-lift">
+        <CardHeader>
+          <CardTitle className="text-xl font-semibold text-primary text-center">
+            Média por Hora - {filteredData.length} Dias
+          </CardTitle>
+          <p className="text-sm text-muted-foreground text-center">
+            Baseado em {filteredData.length} dias de dados
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Gráfico principal */}
+          <div className="w-full">
+            <HourlyProductionChart hourlyData={analysis.hourlyData} />
+          </div>
 
-        <Card className="hover-lift bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-blue-700 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Pico de Produção
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-800">
-              {String(analysis.peakProductionHour.hour).padStart(2, '0')}:00
+          {/* Estatísticas principais - Linha inferior similar à imagem */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-4 border-t">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {String(analysis.peakProductionHour.hour).padStart(2, '0')}h
+              </div>
+              <div className="text-sm text-muted-foreground">Hora Pico</div>
             </div>
-            <p className="text-xs text-blue-600">
-              {analysis.peakProductionHour.inseridos} inseridos
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700 flex items-center gap-2">
-              <TrendingDown className="h-4 w-4" />
-              Menor Volume
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-800">
-              {String(analysis.lowestVolumeHour.hour).padStart(2, '0')}:00
+            
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {Math.round(analysis.averagePerHour.inseridos)}
+              </div>
+              <div className="text-sm text-muted-foreground">Média/Hora</div>
             </div>
-            <p className="text-xs text-orange-600">
-              {analysis.lowestVolumeHour.total} total
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="hover-lift bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700 flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Média/Hora
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-lg font-bold text-purple-800">
-              {Math.round(analysis.averagePerHour.inseridos)}
+            
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {analysis.bestEfficiencyHour.eficiencia.toFixed(0)}%
+              </div>
+              <div className="text-sm text-muted-foreground">Pico Eficiência</div>
             </div>
-            <p className="text-xs text-purple-600">
-              {Math.round(analysis.averagePerHour.rejeitos)} rejeitos
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+            
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {String(analysis.lowestVolumeHour.hour).padStart(2, '0')}h
+              </div>
+              <div className="text-sm text-muted-foreground">Menor Volume</div>
+            </div>
+          </div>
 
-      {/* Anomalias */}
+          {/* Legenda dos turnos */}
+          <div className="flex justify-center gap-6 text-sm">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-blue-500 rounded"></div>
+              <span>Turno 1 (06h-14h)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-orange-500 rounded"></div>
+              <span>Turno 2 (14h-22h)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 bg-purple-500 rounded"></div>
+              <span>Turno 3 (22h-06h)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-1 bg-red-500 rounded"></div>
+              <span>Rejeitos</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Anomalias (se existirem) */}
       {analysis.anomalies.length > 0 && (
         <Card className="border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
           <CardHeader>
@@ -151,12 +148,6 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
           </CardContent>
         </Card>
       )}
-
-      {/* Gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <HourlyProductionChart hourlyData={analysis.hourlyData} />
-        <ShiftComparisonChart shifts={analysis.shifts} />
-      </div>
     </div>
   );
 };
