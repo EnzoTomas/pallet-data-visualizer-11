@@ -20,15 +20,7 @@ export const generateShareText = (
     text += `${dateRange}\n\n`;
   }
   
-  // KPIs Gerais
-  if (shareData.kpisGerais) {
-    text += `📋 *RESUMO EXECUTIVO*\n`;
-    text += `• Eficiência Geral: ${aggregatedData.eficiencia.toFixed(2)}%\n`;
-    text += `• Volume Processado: ${aggregatedData.totalInseridos + aggregatedData.totalRejeitos} itens\n`;
-    text += `• Taxa de Sucesso: ${((aggregatedData.totalInseridos / (aggregatedData.totalInseridos + aggregatedData.totalRejeitos)) * 100).toFixed(1)}%\n\n`;
-  }
-  
-  // Métricas individuais
+  // Métricas principais sempre no topo
   if (shareData.eficiencia) {
     text += `🎯 Eficiência Total: ${aggregatedData.eficiencia.toFixed(2)}%\n`;
   }
@@ -47,22 +39,6 @@ export const generateShareText = (
     text += `• Turno 1 (06:00-14:00) - Inseridos: ${aggregatedData.inseridos1T}, Rejeitos: ${aggregatedData.rejeitos1T}, Eficiência: ${aggregatedData.aderencia1T.toFixed(2)}%\n`;
     text += `• Turno 2 (14:00-22:00) - Inseridos: ${aggregatedData.inseridos2T}, Rejeitos: ${aggregatedData.rejeitos2T}, Eficiência: ${aggregatedData.aderencia2T.toFixed(2)}%\n`;
     text += `• Turno 3 (22:00-06:00) - Inseridos: ${aggregatedData.inseridos3T}, Rejeitos: ${aggregatedData.rejeitos3T}, Eficiência: ${aggregatedData.aderencia3T.toFixed(2)}%\n`;
-  }
-
-  // Comparação entre turnos
-  if (shareData.comparacaoTurnos) {
-    const turnos = [
-      { nome: '1º Turno', eficiencia: aggregatedData.aderencia1T, total: aggregatedData.inseridos1T + aggregatedData.rejeitos1T },
-      { nome: '2º Turno', eficiencia: aggregatedData.aderencia2T, total: aggregatedData.inseridos2T + aggregatedData.rejeitos2T },
-      { nome: '3º Turno', eficiencia: aggregatedData.aderencia3T, total: aggregatedData.inseridos3T + aggregatedData.rejeitos3T }
-    ];
-    
-    const melhorTurno = turnos.reduce((best, turno) => turno.eficiencia > best.eficiencia ? turno : best);
-    const maiorVolume = turnos.reduce((best, turno) => turno.total > best.total ? turno : best);
-    
-    text += `\n🏆 *DESTAQUES DOS TURNOS:*\n`;
-    text += `• Melhor eficiência: ${melhorTurno.nome} (${melhorTurno.eficiencia.toFixed(1)}%)\n`;
-    text += `• Maior volume: ${maiorVolume.nome} (${maiorVolume.total} itens)\n`;
   }
 
   // Análise horária
@@ -89,6 +65,30 @@ export const generateShareText = (
     }
   }
 
+  // KPIs Gerais (resumo executivo)
+  if (shareData.kpisGerais) {
+    text += `\n📋 *RESUMO EXECUTIVO*\n`;
+    text += `• Eficiência Geral: ${aggregatedData.eficiencia.toFixed(2)}%\n`;
+    text += `• Volume Processado: ${aggregatedData.totalInseridos + aggregatedData.totalRejeitos} itens\n`;
+    text += `• Taxa de Sucesso: ${((aggregatedData.totalInseridos / (aggregatedData.totalInseridos + aggregatedData.totalRejeitos)) * 100).toFixed(1)}%\n`;
+  }
+
+  // Comparação entre turnos
+  if (shareData.comparacaoTurnos) {
+    const turnos = [
+      { nome: '1º Turno', eficiencia: aggregatedData.aderencia1T, total: aggregatedData.inseridos1T + aggregatedData.rejeitos1T },
+      { nome: '2º Turno', eficiencia: aggregatedData.aderencia2T, total: aggregatedData.inseridos2T + aggregatedData.rejeitos2T },
+      { nome: '3º Turno', eficiencia: aggregatedData.aderencia3T, total: aggregatedData.inseridos3T + aggregatedData.rejeitos3T }
+    ];
+    
+    const melhorTurno = turnos.reduce((best, turno) => turno.eficiencia > best.eficiencia ? turno : best);
+    const maiorVolume = turnos.reduce((best, turno) => turno.total > best.total ? turno : best);
+    
+    text += `\n🏆 *DESTAQUES DOS TURNOS:*\n`;
+    text += `• Melhor eficiência: ${melhorTurno.nome} (${melhorTurno.eficiencia.toFixed(1)}%)\n`;
+    text += `• Maior volume: ${maiorVolume.nome} (${maiorVolume.total} itens)\n`;
+  }
+
   // Tendências
   if (shareData.graficoTendencia) {
     const trendAnalysis = getTrendAnalysis(filteredData);
@@ -113,8 +113,6 @@ export const generateShareText = (
       text += `\n🎯 *RESUMO OPERACIONAL:*\n${operationalSummary}`;
     }
   }
-  
-  text += `\n⚡ Relatório gerado automaticamente pelo Sistema de Paletização`;
   
   return text;
 };

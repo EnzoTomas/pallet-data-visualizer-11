@@ -18,22 +18,26 @@ export const getHourlyAnalysis = (filteredData: ProcessedDataItem[]): string => 
     }
   });
 
-  // Encontrar picos e mínimos
-  const hours = Object.keys(hourlyData).map(Number).sort((a, b) => a - b);
+  // Filtrar apenas horas com produção (total > 0)
+  const hoursWithProduction = Object.keys(hourlyData)
+    .map(Number)
+    .filter(hour => hourlyData[hour].total > 0)
+    .sort((a, b) => a - b);
+
   let analysis = '';
 
-  if (hours.length > 0) {
-    const bestHour = hours.reduce((best, hour) => 
+  if (hoursWithProduction.length > 0) {
+    const bestHour = hoursWithProduction.reduce((best, hour) => 
       hourlyData[hour].total > hourlyData[best].total ? hour : best
     );
-    const worstHour = hours.reduce((worst, hour) => 
+    const worstHour = hoursWithProduction.reduce((worst, hour) => 
       hourlyData[hour].total < hourlyData[worst].total ? hour : worst
     );
 
-    analysis += `• Pico de produção: ${bestHour}h com ${hourlyData[bestHour].total} itens\n`;
-    analysis += `• Menor produção: ${worstHour}h com ${hourlyData[worstHour].total} itens\n`;
+    analysis += `• Pico de produção: ${bestHour.toString().padStart(2, '0')}h com ${hourlyData[bestHour].total} itens\n`;
+    analysis += `• Menor produção: ${worstHour.toString().padStart(2, '0')}h com ${hourlyData[worstHour].total} itens\n`;
     
-    const avgProduction = hours.reduce((sum, hour) => sum + hourlyData[hour].total, 0) / hours.length;
+    const avgProduction = hoursWithProduction.reduce((sum, hour) => sum + hourlyData[hour].total, 0) / hoursWithProduction.length;
     analysis += `• Média horária: ${avgProduction.toFixed(0)} itens\n`;
   }
 
