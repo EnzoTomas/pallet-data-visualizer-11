@@ -1,5 +1,6 @@
 
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
+import { getTopProductiveHours } from "./topProductiveHours";
 
 export const getHourlyAnalysis = (filteredData: ProcessedDataItem[]): string => {
   if (!filteredData.length) return '';
@@ -38,7 +39,13 @@ export const getHourlyAnalysis = (filteredData: ProcessedDataItem[]): string => 
     analysis += `• Menor produção: ${worstHour.toString().padStart(2, '0')}h com ${hourlyData[worstHour].total} itens\n`;
     
     const avgProduction = hoursWithProduction.reduce((sum, hour) => sum + hourlyData[hour].total, 0) / hoursWithProduction.length;
-    analysis += `• Média horária: ${avgProduction.toFixed(0)} itens\n`;
+    analysis += `• Média horária: ${avgProduction.toFixed(0)} itens\n\n`;
+
+    // Adicionar Top 5 horas mais produtivas
+    const topHours = getTopProductiveHours(filteredData);
+    if (topHours) {
+      analysis += topHours;
+    }
   }
 
   return analysis;

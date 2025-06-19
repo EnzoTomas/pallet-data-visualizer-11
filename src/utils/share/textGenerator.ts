@@ -5,7 +5,6 @@ import { ShareData } from "@/types/share";
 import { getRejectAnalysis } from "./rejectAnalysis";
 import { getResponsibleAnalysis } from "./responsibleAnalysis";
 import { getHourlyAnalysis } from "./hourlyAnalysis";
-import { getTrendAnalysis } from "./trendAnalysis";
 import { getDateRange } from "./operationalSummary";
 
 export const generateShareText = (
@@ -62,14 +61,6 @@ export const generateShareText = (
     const responsibleAnalysis = getResponsibleAnalysis(filteredData);
     if (responsibleAnalysis) {
       text += `\n👥 *RESPONSÁVEIS PELOS REJEITOS:*\n${responsibleAnalysis}`;
-    }
-  }
-
-  // Tendências
-  if (shareData.graficoTendencia) {
-    const trendAnalysis = getTrendAnalysis(filteredData);
-    if (trendAnalysis) {
-      text += `\n📈 *ANÁLISE DE TENDÊNCIAS:*\n${trendAnalysis}`;
     }
   }
   

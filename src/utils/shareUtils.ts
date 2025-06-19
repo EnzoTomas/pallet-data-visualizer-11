@@ -3,6 +3,6 @@
 export { getRejectAnalysis } from './share/rejectAnalysis';
 export { getResponsibleAnalysis } from './share/responsibleAnalysis';
 export { getHourlyAnalysis } from './share/hourlyAnalysis';
-export { getTrendAnalysis } from './share/trendAnalysis';
+export { getTopProductiveHours } from './share/topProductiveHours';
 export { getOperationalSummary, getDateRange } from './share/operationalSummary';
 export { generateShareText } from './share/textGenerator';

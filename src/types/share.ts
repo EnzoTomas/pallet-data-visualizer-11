@@ -15,7 +15,6 @@ export interface ShareData {
   analiseRejeitos: boolean;
   responsaveisRejeitos: boolean;
   analiseHoraria: boolean;
-  graficoTendencia: boolean;
 }
 
 export type ShareType = 'dados' | 'imagens' | 'ambos';

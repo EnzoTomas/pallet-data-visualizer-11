@@ -17,8 +17,7 @@ export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonPr
     turnos: false,
     analiseRejeitos: false,
     responsaveisRejeitos: false,
-    analiseHoraria: false,
-    graficoTendencia: false
+    analiseHoraria: false
   });
 
   const selectAll = () => {
@@ -29,8 +28,7 @@ export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonPr
       turnos: true,
       analiseRejeitos: true,
       responsaveisRejeitos: true,
-      analiseHoraria: true,
-      graficoTendencia: true
+      analiseHoraria: true
     });
   };
 

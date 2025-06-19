@@ -103,15 +103,6 @@ export const ShareDataSelector = ({ shareData, onShareDataChange, onSelectAll }:
               />
               <label htmlFor="responsaveisRejeitos" className="text-sm">Responsáveis pelos Rejeitos</label>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="graficoTendencia"
-                checked={shareData.graficoTendencia}
-                onCheckedChange={() => onShareDataChange('graficoTendencia')}
-              />
-              <label htmlFor="graficoTendencia" className="text-sm">Gráfico de Tendência</label>
-            </div>
           </div>
         </div>
       </div>
