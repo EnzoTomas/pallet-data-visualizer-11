@@ -24,59 +24,137 @@ export const ShareDataSelector = ({ shareData, onShareDataChange, onSelectAll }:
           Selecionar todos
         </Button>
       </div>
-      <div className="space-y-2 max-h-40 overflow-y-auto">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="eficiencia"
-            checked={shareData.eficiencia}
-            onCheckedChange={() => onShareDataChange('eficiencia')}
-          />
-          <label htmlFor="eficiencia" className="text-sm">Eficiência Total</label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="inseridos"
-            checked={shareData.inseridos}
-            onCheckedChange={() => onShareDataChange('inseridos')}
-          />
-          <label htmlFor="inseridos" className="text-sm">Total Inseridos</label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="rejeitos"
-            checked={shareData.rejeitos}
-            onCheckedChange={() => onShareDataChange('rejeitos')}
-          />
-          <label htmlFor="rejeitos" className="text-sm">Total Rejeitos</label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="turnos"
-            checked={shareData.turnos}
-            onCheckedChange={() => onShareDataChange('turnos')}
-          />
-          <label htmlFor="turnos" className="text-sm">Dados por Turno</label>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="analiseRejeitos"
-            checked={shareData.analiseRejeitos}
-            onCheckedChange={() => onShareDataChange('analiseRejeitos')}
-          />
-          <label htmlFor="analiseRejeitos" className="text-sm">Análise de Rejeitos</label>
+      <div className="space-y-2 max-h-60 overflow-y-auto">
+        {/* Métricas Principais */}
+        <div className="border-b pb-2 mb-2">
+          <h5 className="text-xs font-semibold text-muted-foreground mb-2">📊 Métricas Principais</h5>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="kpisGerais"
+                checked={shareData.kpisGerais}
+                onCheckedChange={() => onShareDataChange('kpisGerais')}
+              />
+              <label htmlFor="kpisGerais" className="text-sm">KPIs Gerais</label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="eficiencia"
+                checked={shareData.eficiencia}
+                onCheckedChange={() => onShareDataChange('eficiencia')}
+              />
+              <label htmlFor="eficiencia" className="text-sm">Eficiência Total</label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="inseridos"
+                checked={shareData.inseridos}
+                onCheckedChange={() => onShareDataChange('inseridos')}
+              />
+              <label htmlFor="inseridos" className="text-sm">Total Inseridos</label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="rejeitos"
+                checked={shareData.rejeitos}
+                onCheckedChange={() => onShareDataChange('rejeitos')}
+              />
+              <label htmlFor="rejeitos" className="text-sm">Total Rejeitos</label>
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="responsaveisRejeitos"
-            checked={shareData.responsaveisRejeitos}
-            onCheckedChange={() => onShareDataChange('responsaveisRejeitos')}
-          />
-          <label htmlFor="responsaveisRejeitos" className="text-sm">Responsáveis pelos Rejeitos</label>
+        {/* Análises por Turno */}
+        <div className="border-b pb-2 mb-2">
+          <h5 className="text-xs font-semibold text-muted-foreground mb-2">🕐 Análises por Turno</h5>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="turnos"
+                checked={shareData.turnos}
+                onCheckedChange={() => onShareDataChange('turnos')}
+              />
+              <label htmlFor="turnos" className="text-sm">Dados por Turno</label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="comparacaoTurnos"
+                checked={shareData.comparacaoTurnos}
+                onCheckedChange={() => onShareDataChange('comparacaoTurnos')}
+              />
+              <label htmlFor="comparacaoTurnos" className="text-sm">Comparação entre Turnos</label>
+            </div>
+          </div>
+        </div>
+
+        {/* Análises Detalhadas */}
+        <div className="border-b pb-2 mb-2">
+          <h5 className="text-xs font-semibold text-muted-foreground mb-2">📈 Análises Detalhadas</h5>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="analiseHoraria"
+                checked={shareData.analiseHoraria}
+                onCheckedChange={() => onShareDataChange('analiseHoraria')}
+              />
+              <label htmlFor="analiseHoraria" className="text-sm">Análise Horária</label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="analiseRejeitos"
+                checked={shareData.analiseRejeitos}
+                onCheckedChange={() => onShareDataChange('analiseRejeitos')}
+              />
+              <label htmlFor="analiseRejeitos" className="text-sm">Análise de Rejeitos</label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="responsaveisRejeitos"
+                checked={shareData.responsaveisRejeitos}
+                onCheckedChange={() => onShareDataChange('responsaveisRejeitos')}
+              />
+              <label htmlFor="responsaveisRejeitos" className="text-sm">Responsáveis pelos Rejeitos</label>
+            </div>
+          </div>
+        </div>
+
+        {/* Gráficos e Tendências */}
+        <div>
+          <h5 className="text-xs font-semibold text-muted-foreground mb-2">📊 Gráficos e Tendências</h5>
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="graficoTendencia"
+                checked={shareData.graficoTendencia}
+                onCheckedChange={() => onShareDataChange('graficoTendencia')}
+              />
+              <label htmlFor="graficoTendencia" className="text-sm">Gráfico de Tendência</label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="graficoVolume"
+                checked={shareData.graficoVolume}
+                onCheckedChange={() => onShareDataChange('graficoVolume')}
+              />
+              <label htmlFor="graficoVolume" className="text-sm">Gráfico de Volume</label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="resumoOperacional"
+                checked={shareData.resumoOperacional}
+                onCheckedChange={() => onShareDataChange('resumoOperacional')}
+              />
+              <label htmlFor="resumoOperacional" className="text-sm">Resumo Operacional</label>
+            </div>
+          </div>
         </div>
       </div>
     </div>

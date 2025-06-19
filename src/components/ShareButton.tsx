@@ -16,7 +16,13 @@ export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonPr
     rejeitos: false,
     turnos: false,
     analiseRejeitos: false,
-    responsaveisRejeitos: false
+    responsaveisRejeitos: false,
+    analiseHoraria: false,
+    graficoTendencia: false,
+    graficoVolume: false,
+    comparacaoTurnos: false,
+    kpisGerais: true,
+    resumoOperacional: false
   });
 
   const selectAll = () => {
@@ -26,7 +32,13 @@ export const ShareButton = ({ aggregatedData, filteredData = [] }: ShareButtonPr
       rejeitos: true,
       turnos: true,
       analiseRejeitos: true,
-      responsaveisRejeitos: true
+      responsaveisRejeitos: true,
+      analiseHoraria: true,
+      graficoTendencia: true,
+      graficoVolume: true,
+      comparacaoTurnos: true,
+      kpisGerais: true,
+      resumoOperacional: true
     });
   };
 
