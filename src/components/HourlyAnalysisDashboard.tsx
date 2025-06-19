@@ -2,11 +2,10 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Clock, BarChart3, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock, BarChart3, AlertTriangle, ChevronLeft, ChevronRight, Target, TrendingUp, TrendingDown } from 'lucide-react';
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
 import { useHourlyAnalysis } from "@/hooks/useHourlyAnalysis";
 import { HourlyProductionChart } from "@/components/HourlyProductionChart";
-import { ShiftSummaryCards } from "@/components/ShiftSummaryCards";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HourlyAnalysisDashboardProps {
@@ -118,13 +117,35 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
         </CardContent>
       </Card>
 
-      {/* Cards de resumo dos turnos e destaques - organizados juntos */}
-      <ShiftSummaryCards 
-        shifts={analysis.shifts}
-        bestEfficiencyHour={analysis.bestEfficiencyHour}
-        peakProductionHour={analysis.peakProductionHour}
-        lowestVolumeHour={analysis.lowestVolumeHour}
-      />
+      {/* Cards de destaques - layout horizontal para mobile */}
+      <div className={`grid ${isMobile ? 'grid-cols-3 gap-2' : 'grid-cols-1 md:grid-cols-3 gap-4'}`}>
+        <Card className="hover:shadow-lg transition-all duration-300 border-primary/10">
+          <CardContent className={`${isMobile ? 'p-2' : 'p-3 md:p-4'} text-center`}>
+            <Target className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6 md:h-8 md:w-8'} mx-auto mb-1 md:mb-2 text-green-600`} />
+            <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-xs md:text-sm'} text-muted-foreground mb-1`}>Pico de Eficiência</h3>
+            <div className={`${isMobile ? 'text-sm' : 'text-xl md:text-2xl'} font-bold text-primary`}>{formatHour(analysis.bestEfficiencyHour.hour)}</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-xs md:text-sm'} text-muted-foreground`}>{analysis.bestEfficiencyHour.eficiencia.toFixed(1)}%</div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-all duration-300 border-primary/10">
+          <CardContent className={`${isMobile ? 'p-2' : 'p-3 md:p-4'} text-center`}>
+            <TrendingUp className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6 md:h-8 md:w-8'} mx-auto mb-1 md:mb-2 text-blue-600`} />
+            <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-xs md:text-sm'} text-muted-foreground mb-1`}>Maior Produção</h3>
+            <div className={`${isMobile ? 'text-sm' : 'text-xl md:text-2xl'} font-bold text-primary`}>{formatHour(analysis.peakProductionHour.hour)}</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-xs md:text-sm'} text-muted-foreground`}>{analysis.peakProductionHour.inseridos} inseridos</div>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-all duration-300 border-primary/10">
+          <CardContent className={`${isMobile ? 'p-2' : 'p-3 md:p-4'} text-center`}>
+            <TrendingDown className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6 md:h-8 md:w-8'} mx-auto mb-1 md:mb-2 text-red-600`} />
+            <h3 className={`font-semibold ${isMobile ? 'text-xs' : 'text-xs md:text-sm'} text-muted-foreground mb-1`}>Menor Volume</h3>
+            <div className={`${isMobile ? 'text-sm' : 'text-xl md:text-2xl'} font-bold text-primary`}>{formatHour(analysis.lowestVolumeHour.hour)}</div>
+            <div className={`${isMobile ? 'text-xs' : 'text-xs md:text-sm'} text-muted-foreground`}>{analysis.lowestVolumeHour.total} total</div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Visualização principal - Carrossel no mobile, gráfico no desktop */}
       {isMobile ? (
@@ -136,50 +157,10 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
             <p className="text-xs text-muted-foreground text-center">
               Produção detalhada por período ({currentPage + 1}/{totalPages})
             </p>
-          </CardHeader>
-          <CardContent className="p-4">
-            {/* Grid 3x2 para mobile */}
-            <div className="grid grid-cols-1 gap-3 mb-4">
-              {currentPageItems.map((hourData, index) => (
-                <Card 
-                  key={hourData.hour} 
-                  className={`border-2 ${getTurnoColor(hourData.hour)} transition-all duration-200`}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-base">{formatHour(hourData.hour)}</span>
-                        <span className="text-xs px-2 py-1 bg-white/60 rounded">
-                          {getTurnoName(hourData.hour)}
-                        </span>
-                      </div>
-                      <span className="text-sm font-medium">
-                        {hourData.eficiencia.toFixed(1)}% eficiência
-                      </span>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="text-center p-2 bg-white/50 rounded">
-                        <div className="font-bold text-green-600 text-lg">{hourData.inseridos}</div>
-                        <div className="text-xs text-muted-foreground">Inseridos</div>
-                      </div>
-                      <div className="text-center p-2 bg-white/50 rounded">
-                        <div className="font-bold text-red-600 text-lg">{hourData.rejeitos}</div>
-                        <div className="text-xs text-muted-foreground">Rejeitados</div>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-2 text-center text-xs text-muted-foreground">
-                      Total: {hourData.total} unidades
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
 
-            {/* Controles de navegação */}
+            {/* Controles de navegação - movidos para cima */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-2">
                 <Button
                   onClick={prevPage}
                   disabled={currentPage === 0}
@@ -215,6 +196,41 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
                 </Button>
               </div>
             )}
+          </CardHeader>
+          <CardContent className="p-4">
+            {/* Grid 2 colunas (3x2) para mobile */}
+            <div className="grid grid-cols-2 gap-3">
+              {currentPageItems.map((hourData, index) => (
+                <Card 
+                  key={hourData.hour} 
+                  className={`border-2 ${getTurnoColor(hourData.hour)} transition-all duration-200`}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-bold text-base">{formatHour(hourData.hour)}</span>
+                      <span className="text-xs px-2 py-1 bg-white/60 rounded">
+                        {getTurnoName(hourData.hour)}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="text-center p-2 bg-white/50 rounded">
+                        <div className="font-bold text-green-600 text-sm">{hourData.inseridos}</div>
+                        <div className="text-xs text-muted-foreground">Inseridos</div>
+                      </div>
+                      <div className="text-center p-2 bg-white/50 rounded">
+                        <div className="font-bold text-red-600 text-sm">{hourData.rejeitos}</div>
+                        <div className="text-xs text-muted-foreground">Rejeitados</div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-2 text-center text-xs text-muted-foreground">
+                      {hourData.eficiencia.toFixed(1)}% eficiência
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </CardContent>
         </Card>
       ) : (
