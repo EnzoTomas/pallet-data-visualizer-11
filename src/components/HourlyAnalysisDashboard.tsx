@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, Clock, BarChart3, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock, BarChart3, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProcessedDataItem } from "@/hooks/useProcessedData";
 import { useHourlyAnalysis } from "@/hooks/useHourlyAnalysis";
 import { HourlyProductionChart } from "@/components/HourlyProductionChart";
@@ -15,6 +15,7 @@ interface HourlyAnalysisDashboardProps {
 
 export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboardProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
   const analysis = useHourlyAnalysis(filteredData);
   const isMobile = useIsMobile();
 
@@ -32,6 +33,24 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
     return '3º Turno';
   };
 
+  // Paginação para mobile - 6 itens por página (3x2)
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(analysis.hourlyData.length / itemsPerPage);
+  const startIndex = currentPage * itemsPerPage;
+  const currentPageItems = analysis.hourlyData.slice(startIndex, startIndex + itemsPerPage);
+
+  const nextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   if (!isExpanded) {
     return (
       <Card className="hover-lift bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 border-2 border-primary/20 shadow-lg">
@@ -47,9 +66,16 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
               </div>
               <div className="text-left">
                 <span className="font-bold text-lg block">Análise Hora a Hora</span>
-                <span className="text-sm text-muted-foreground">
-                  Clique para ver insights detalhados de produção
-                </span>
+                {isMobile ? (
+                  <div className="text-sm text-muted-foreground">
+                    <div>Clique para ver insights</div>
+                    <div>detalhados de produção</div>
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Clique para ver insights detalhados de produção
+                  </span>
+                )}
               </div>
             </div>
             <ChevronDown className="h-5 w-5" />
@@ -92,7 +118,7 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
         </CardContent>
       </Card>
 
-      {/* Cards de resumo dos turnos e destaques */}
+      {/* Cards de resumo dos turnos e destaques - organizados juntos */}
       <ShiftSummaryCards 
         shifts={analysis.shifts}
         bestEfficiencyHour={analysis.bestEfficiencyHour}
@@ -100,7 +126,7 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
         lowestVolumeHour={analysis.lowestVolumeHour}
       />
 
-      {/* Visualização principal - Gráfico no desktop, caixas no mobile */}
+      {/* Visualização principal - Carrossel no mobile, gráfico no desktop */}
       {isMobile ? (
         <Card className="border-primary/10">
           <CardHeader className="pb-3">
@@ -108,45 +134,87 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
               Dados por Hora
             </CardTitle>
             <p className="text-xs text-muted-foreground text-center">
-              Produção detalhada por período
+              Produção detalhada por período ({currentPage + 1}/{totalPages})
             </p>
           </CardHeader>
-          <CardContent className="p-4 space-y-3">
-            {analysis.hourlyData.map((hourData) => (
-              <Card 
-                key={hourData.hour} 
-                className={`border-2 ${getTurnoColor(hourData.hour)} transition-all duration-200`}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold text-base">{formatHour(hourData.hour)}</span>
-                      <span className="text-xs px-2 py-1 bg-white/60 rounded">
-                        {getTurnoName(hourData.hour)}
+          <CardContent className="p-4">
+            {/* Grid 3x2 para mobile */}
+            <div className="grid grid-cols-1 gap-3 mb-4">
+              {currentPageItems.map((hourData, index) => (
+                <Card 
+                  key={hourData.hour} 
+                  className={`border-2 ${getTurnoColor(hourData.hour)} transition-all duration-200`}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-base">{formatHour(hourData.hour)}</span>
+                        <span className="text-xs px-2 py-1 bg-white/60 rounded">
+                          {getTurnoName(hourData.hour)}
+                        </span>
+                      </div>
+                      <span className="text-sm font-medium">
+                        {hourData.eficiencia.toFixed(1)}% eficiência
                       </span>
                     </div>
-                    <span className="text-sm font-medium">
-                      {hourData.eficiencia.toFixed(1)}% eficiência
-                    </span>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-2 bg-white/50 rounded">
-                      <div className="font-bold text-green-600 text-lg">{hourData.inseridos}</div>
-                      <div className="text-xs text-muted-foreground">Inseridos</div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-center p-2 bg-white/50 rounded">
+                        <div className="font-bold text-green-600 text-lg">{hourData.inseridos}</div>
+                        <div className="text-xs text-muted-foreground">Inseridos</div>
+                      </div>
+                      <div className="text-center p-2 bg-white/50 rounded">
+                        <div className="font-bold text-red-600 text-lg">{hourData.rejeitos}</div>
+                        <div className="text-xs text-muted-foreground">Rejeitados</div>
+                      </div>
                     </div>
-                    <div className="text-center p-2 bg-white/50 rounded">
-                      <div className="font-bold text-red-600 text-lg">{hourData.rejeitos}</div>
-                      <div className="text-xs text-muted-foreground">Rejeitados</div>
+                    
+                    <div className="mt-2 text-center text-xs text-muted-foreground">
+                      Total: {hourData.total} unidades
                     </div>
-                  </div>
-                  
-                  <div className="mt-2 text-center text-xs text-muted-foreground">
-                    Total: {hourData.total} unidades
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Controles de navegação */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between">
+                <Button
+                  onClick={prevPage}
+                  disabled={currentPage === 0}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Anterior
+                </Button>
+                
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: totalPages }, (_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        i === currentPage ? 'bg-primary' : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <Button
+                  onClick={nextPage}
+                  disabled={currentPage === totalPages - 1}
+                  variant="outline"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  Próximo
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       ) : (
