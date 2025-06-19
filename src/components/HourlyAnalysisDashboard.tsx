@@ -29,25 +29,33 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
       />
 
       {isExpanded && (
-        <>
+        <div className="animate-hourly-reveal space-y-4 md:space-y-6">
           {/* Highlight cards with key metrics */}
-          <HourlyHighlightCards analysis={analysis} />
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <HourlyHighlightCards analysis={analysis} />
+          </div>
 
           {/* Main visualization - Carousel for mobile, Chart for desktop */}
-          {isMobile ? (
-            <HourlyDataCarousel analysis={analysis} />
-          ) : (
-            <div className="w-full">
-              <HourlyProductionChart hourlyData={analysis.hourlyData} />
-            </div>
-          )}
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            {isMobile ? (
+              <HourlyDataCarousel analysis={analysis} />
+            ) : (
+              <div className="w-full">
+                <HourlyProductionChart hourlyData={analysis.hourlyData} />
+              </div>
+            )}
+          </div>
 
           {/* Operational averages */}
-          <HourlyStatsCards analysis={analysis} />
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <HourlyStatsCards analysis={analysis} />
+          </div>
 
           {/* Anomalies (if any) */}
-          <HourlyAnomalies analysis={analysis} />
-        </>
+          <div className="animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <HourlyAnomalies analysis={analysis} />
+          </div>
+        </div>
       )}
     </div>
   );

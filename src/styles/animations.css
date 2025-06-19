@@ -91,3 +91,29 @@
     transform: scale(1.05);
   }
 }
+
+/* Professional hourly analysis reveal animation */
+@keyframes hourlyReveal {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.98);
+    filter: blur(1px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+}
+
+/* Staggered fade-in-up animation for individual components */
+@keyframes fadeInUpStaggered {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
