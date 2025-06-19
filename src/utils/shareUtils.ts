@@ -93,17 +93,19 @@ export const getResponsibleAnalysis = (filteredData: ProcessedDataItem[]): strin
 export const getHourlyAnalysis = (filteredData: ProcessedDataItem[]): string => {
   if (!filteredData.length) return '';
 
-  // Agrupar dados por hora
-  const hourlyData = filteredData.reduce((acc, item) => {
-    const hour = new Date(`${item.date} ${item.time}`).getHours();
-    if (!acc[hour]) {
-      acc[hour] = { inseridos: 0, rejeitos: 0, total: 0 };
+  // Agrupar dados usando os arrays inseridosHora e rejeitosHora existentes
+  const hourlyData: Record<number, { inseridos: number; rejeitos: number; total: number }> = {};
+
+  filteredData.forEach(item => {
+    for (let hour = 0; hour < 24; hour++) {
+      if (!hourlyData[hour]) {
+        hourlyData[hour] = { inseridos: 0, rejeitos: 0, total: 0 };
+      }
+      hourlyData[hour].inseridos += item.inseridosHora[hour] || 0;
+      hourlyData[hour].rejeitos += item.rejeitosHora[hour] || 0;
+      hourlyData[hour].total += (item.inseridosHora[hour] || 0) + (item.rejeitosHora[hour] || 0);
     }
-    acc[hour].inseridos += item.totalInseridos || 0;
-    acc[hour].rejeitos += item.totalRejeitos || 0;
-    acc[hour].total += (item.totalInseridos || 0) + (item.totalRejeitos || 0);
-    return acc;
-  }, {} as Record<number, { inseridos: number; rejeitos: number; total: number }>);
+  });
 
   // Encontrar picos e mínimos
   const hours = Object.keys(hourlyData).map(Number).sort((a, b) => a - b);
