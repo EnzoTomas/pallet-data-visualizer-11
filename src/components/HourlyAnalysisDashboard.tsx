@@ -18,6 +18,20 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
   const analysis = useHourlyAnalysis(filteredData);
   const isMobile = useIsMobile();
 
+  const formatHour = (hour: number) => `${String(hour).padStart(2, '0')}h`;
+
+  const getTurnoColor = (hour: number) => {
+    if (hour >= 6 && hour < 14) return 'bg-blue-50 border-blue-200 text-blue-700';
+    if (hour >= 14 && hour < 22) return 'bg-orange-50 border-orange-200 text-orange-700';
+    return 'bg-purple-50 border-purple-200 text-purple-700';
+  };
+
+  const getTurnoName = (hour: number) => {
+    if (hour >= 6 && hour < 14) return '1º Turno';
+    if (hour >= 14 && hour < 22) return '2º Turno';
+    return '3º Turno';
+  };
+
   if (!isExpanded) {
     return (
       <Card className="hover-lift bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 border-2 border-primary/20 shadow-lg">
@@ -47,7 +61,7 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
 
   return (
     <div className="space-y-4 md:space-y-6 animate-fade-in">
-      {/* Header com botão para fechar */}
+      {/* Header com botão para fechar - título responsivo */}
       <Card className="bg-gradient-to-r from-primary/15 via-accent/10 to-primary/15 border-2 border-primary/30 shadow-lg">
         <CardContent className="p-4 md:p-6">
           <Button
@@ -61,9 +75,16 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
               </div>
               <div className="text-left">
                 <span className="font-bold text-lg md:text-xl block">Dashboard Hora a Hora</span>
-                <span className="text-xs md:text-sm text-muted-foreground">
-                  Análise detalhada baseada em {filteredData.length} dias de dados
-                </span>
+                {isMobile ? (
+                  <div className="text-xs text-muted-foreground">
+                    <div>Análise detalhada baseada em</div>
+                    <div>{filteredData.length} dias de dados</div>
+                  </div>
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    Análise detalhada baseada em {filteredData.length} dias de dados
+                  </span>
+                )}
               </div>
             </div>
             <ChevronUp className="h-5 w-5" />
@@ -79,10 +100,60 @@ export const HourlyAnalysisDashboard = ({ filteredData }: HourlyAnalysisDashboar
         lowestVolumeHour={analysis.lowestVolumeHour}
       />
 
-      {/* Gráfico principal de produção hora a hora */}
-      <div className="w-full">
-        <HourlyProductionChart hourlyData={analysis.hourlyData} />
-      </div>
+      {/* Visualização principal - Gráfico no desktop, caixas no mobile */}
+      {isMobile ? (
+        <Card className="border-primary/10">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg font-bold text-center bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Dados por Hora
+            </CardTitle>
+            <p className="text-xs text-muted-foreground text-center">
+              Produção detalhada por período
+            </p>
+          </CardHeader>
+          <CardContent className="p-4 space-y-3">
+            {analysis.hourlyData.map((hourData) => (
+              <Card 
+                key={hourData.hour} 
+                className={`border-2 ${getTurnoColor(hourData.hour)} transition-all duration-200`}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-base">{formatHour(hourData.hour)}</span>
+                      <span className="text-xs px-2 py-1 bg-white/60 rounded">
+                        {getTurnoName(hourData.hour)}
+                      </span>
+                    </div>
+                    <span className="text-sm font-medium">
+                      {hourData.eficiencia.toFixed(1)}% eficiência
+                    </span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-2 bg-white/50 rounded">
+                      <div className="font-bold text-green-600 text-lg">{hourData.inseridos}</div>
+                      <div className="text-xs text-muted-foreground">Inseridos</div>
+                    </div>
+                    <div className="text-center p-2 bg-white/50 rounded">
+                      <div className="font-bold text-red-600 text-lg">{hourData.rejeitos}</div>
+                      <div className="text-xs text-muted-foreground">Rejeitados</div>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-2 text-center text-xs text-muted-foreground">
+                    Total: {hourData.total} unidades
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="w-full">
+          <HourlyProductionChart hourlyData={analysis.hourlyData} />
+        </div>
+      )}
 
       {/* Estatísticas de média */}
       <Card className="hover-lift border-primary/10">
