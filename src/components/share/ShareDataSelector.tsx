@@ -31,15 +31,6 @@ export const ShareDataSelector = ({ shareData, onShareDataChange, onSelectAll }:
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="kpisGerais"
-                checked={shareData.kpisGerais}
-                onCheckedChange={() => onShareDataChange('kpisGerais')}
-              />
-              <label htmlFor="kpisGerais" className="text-sm">KPIs Gerais</label>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              <Checkbox
                 id="eficiencia"
                 checked={shareData.eficiencia}
                 onCheckedChange={() => onShareDataChange('eficiencia')}
@@ -79,20 +70,11 @@ export const ShareDataSelector = ({ shareData, onShareDataChange, onSelectAll }:
               />
               <label htmlFor="turnos" className="text-sm">Dados por Turno</label>
             </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="comparacaoTurnos"
-                checked={shareData.comparacaoTurnos}
-                onCheckedChange={() => onShareDataChange('comparacaoTurnos')}
-              />
-              <label htmlFor="comparacaoTurnos" className="text-sm">Comparação entre Turnos</label>
-            </div>
           </div>
         </div>
 
         {/* Análises Detalhadas */}
-        <div className="border-b pb-2 mb-2">
+        <div>
           <h5 className="text-xs font-semibold text-muted-foreground mb-2">📈 Análises Detalhadas</h5>
           <div className="space-y-2">
             <div className="flex items-center space-x-2">
@@ -121,13 +103,7 @@ export const ShareDataSelector = ({ shareData, onShareDataChange, onSelectAll }:
               />
               <label htmlFor="responsaveisRejeitos" className="text-sm">Responsáveis pelos Rejeitos</label>
             </div>
-          </div>
-        </div>
 
-        {/* Gráficos e Tendências */}
-        <div>
-          <h5 className="text-xs font-semibold text-muted-foreground mb-2">📊 Gráficos e Tendências</h5>
-          <div className="space-y-2">
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="graficoTendencia"
@@ -135,24 +111,6 @@ export const ShareDataSelector = ({ shareData, onShareDataChange, onSelectAll }:
                 onCheckedChange={() => onShareDataChange('graficoTendencia')}
               />
               <label htmlFor="graficoTendencia" className="text-sm">Gráfico de Tendência</label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="graficoVolume"
-                checked={shareData.graficoVolume}
-                onCheckedChange={() => onShareDataChange('graficoVolume')}
-              />
-              <label htmlFor="graficoVolume" className="text-sm">Gráfico de Volume</label>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="resumoOperacional"
-                checked={shareData.resumoOperacional}
-                onCheckedChange={() => onShareDataChange('resumoOperacional')}
-              />
-              <label htmlFor="resumoOperacional" className="text-sm">Resumo Operacional</label>
             </div>
           </div>
         </div>

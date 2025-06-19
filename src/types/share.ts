@@ -16,10 +16,6 @@ export interface ShareData {
   responsaveisRejeitos: boolean;
   analiseHoraria: boolean;
   graficoTendencia: boolean;
-  graficoVolume: boolean;
-  comparacaoTurnos: boolean;
-  kpisGerais: boolean;
-  resumoOperacional: boolean;
 }
 
 export type ShareType = 'dados' | 'imagens' | 'ambos';
