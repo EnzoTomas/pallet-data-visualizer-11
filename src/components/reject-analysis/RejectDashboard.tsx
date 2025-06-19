@@ -16,7 +16,7 @@ export const RejectDashboard = ({ rejectChartData, totalRejects }: RejectDashboa
   return (
     <Card className="hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-white via-red-50/30 to-red-100/50 border-0 shadow-xl overflow-hidden scroll-animate">
       <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500"></div>
-      <CardHeader className={`${isMobile ? 'pb-2' : 'pb-6'} relative`}>
+      <CardHeader className={`${isMobile ? 'pb-2' : 'pb-4'} relative`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className={`${isMobile ? 'p-2' : 'p-3'} bg-red-500/10 rounded-xl`}>
@@ -35,17 +35,17 @@ export const RejectDashboard = ({ rejectChartData, totalRejects }: RejectDashboa
           </div>
         </div>
       </CardHeader>
-      <CardContent className={`${isMobile ? 'p-3' : 'space-y-4'}`}>
+      <CardContent className={`${isMobile ? 'p-3' : 'p-4'}`}>
         {rejectChartData.length > 0 ? (
-          <div className={`grid grid-cols-1 ${isMobile ? 'gap-2' : 'md:grid-cols-2 gap-3'}`}>
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-2' : 'grid-cols-2 gap-3'}`}>
             {rejectChartData.map((item, index) => (
               <div 
                 key={item.name} 
-                className={`flex items-center justify-between ${isMobile ? 'p-2' : 'p-4'} bg-white rounded-xl shadow-md border border-gray-100 hover:shadow-lg transition-all duration-300`}
+                className={`flex items-center justify-between ${isMobile ? 'p-2.5' : 'p-3'} bg-white rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 hover:scale-[1.02]`}
               >
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2.5">
                   <div 
-                    className={`${isMobile ? 'p-1.5' : 'p-2'} rounded-lg`}
+                    className={`${isMobile ? 'p-1.5' : 'p-2'} rounded-lg flex-shrink-0`}
                     style={{
                       backgroundColor: `${colors[index]}20`,
                       color: colors[index]
@@ -53,14 +53,18 @@ export const RejectDashboard = ({ rejectChartData, totalRejects }: RejectDashboa
                   >
                     {getRejectIcon(item.fullName)}
                   </div>
-                  <div>
-                    <div className={`font-semibold text-gray-800 ${isMobile ? 'text-xs' : 'text-sm'}`}>{item.name}</div>
-                    {!isMobile && <div className="text-xs text-gray-500">{item.fullName}</div>}
+                  <div className="min-w-0 flex-1">
+                    <div className={`font-semibold text-gray-800 ${isMobile ? 'text-xs' : 'text-sm'} leading-tight`}>
+                      {item.name}
+                    </div>
+                    {!isMobile && (
+                      <div className="text-xs text-gray-500 truncate">{item.fullName}</div>
+                    )}
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0">
                   <div 
-                    className={`${isMobile ? 'text-sm' : 'text-lg'} font-bold`}
+                    className={`${isMobile ? 'text-sm' : 'text-base'} font-bold`}
                     style={{ color: colors[index] }}
                   >
                     {item.value}

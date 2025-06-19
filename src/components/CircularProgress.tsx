@@ -19,14 +19,14 @@ export const CircularProgress = ({ percentage, label, inseridos, rejeitos }: Cir
   const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
   const getColor = () => {
-    if (percentage >= 70) return "#10b981"; // green
-    if (percentage >= 50) return "#f59e0b"; // yellow
+    if (percentage >= 92) return "#10b981"; // green - nova meta
+    if (percentage >= 70) return "#f59e0b"; // yellow - zona crítica ajustada
     return "#ef4444"; // red
   };
 
   const getHeaderGradient = () => {
-    if (percentage >= 70) return "from-green-500 to-green-600";
-    if (percentage >= 50) return "from-yellow-500 to-yellow-600";
+    if (percentage >= 92) return "from-green-500 to-green-600";
+    if (percentage >= 70) return "from-yellow-500 to-yellow-600";
     return "from-red-500 to-red-600";
   };
 
