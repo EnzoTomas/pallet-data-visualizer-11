@@ -35,11 +35,11 @@ export const getHourlyAnalysis = (filteredData: ProcessedDataItem[]): string => 
       hourlyData[hour].total < hourlyData[worst].total ? hour : worst
     );
 
-    analysis += `• Pico de produção: ${bestHour.toString().padStart(2, '0')}h com ${hourlyData[bestHour].total} itens\n`;
-    analysis += `• Menor produção: ${worstHour.toString().padStart(2, '0')}h com ${hourlyData[worstHour].total} itens\n`;
+    analysis += `• Pico de produção: ${bestHour.toString().padStart(2, '0')}h com ${hourlyData[bestHour].total} pallets\n`;
+    analysis += `• Menor produção: ${worstHour.toString().padStart(2, '0')}h com ${hourlyData[worstHour].total} pallets\n`;
     
     const avgProduction = hoursWithProduction.reduce((sum, hour) => sum + hourlyData[hour].total, 0) / hoursWithProduction.length;
-    analysis += `• Média horária: ${avgProduction.toFixed(0)} itens\n\n`;
+    analysis += `• Média horária: ${avgProduction.toFixed(0)} pallets\n\n`;
 
     // Adicionar Top 5 horas mais produtivas
     const topHours = getTopProductiveHours(filteredData);
